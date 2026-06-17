@@ -355,7 +355,8 @@ h1{
 .sea-friend.turtle{ left:54px; bottom:42px; width:48px; height:48px; font-size:26px; animation-delay:2.3s; }
 .sea-friend.penguin{ right:138px; bottom:38px; width:46px; height:46px; font-size:26px; animation-delay:3s; }
 
-.notify-panel{
+.notify-panel,
+.manual-panel{
     position:relative;
     display:grid;
     grid-template-columns:1fr auto;
@@ -373,7 +374,12 @@ h1{
     backdrop-filter:blur(18px) saturate(140%);
 }
 
+.manual-panel{
+    grid-template-columns:1fr;
+}
+
 .notify-panel::before,
+.manual-panel::before,
 .card::after{
     content:"";
     position:absolute;
@@ -382,13 +388,15 @@ h1{
     pointer-events:none;
 }
 
-.notify-title{
+.notify-title,
+.manual-title{
     position:relative;
     z-index:1;
     font-weight:800;
 }
 
-.notify-status{
+.notify-status,
+.manual-status{
     position:relative;
     z-index:1;
     color:var(--muted);
@@ -401,6 +409,47 @@ h1{
     z-index:1;
     display:flex;
     gap:8px;
+}
+
+.manual-form{
+    position:relative;
+    z-index:1;
+    display:grid;
+    grid-template-columns:minmax(0,1fr) auto;
+    gap:10px;
+}
+
+.manual-form input{
+    width:100%;
+    min-height:46px;
+    border:1px solid rgba(209,239,255,0.36);
+    border-radius:10px;
+    padding:0 13px;
+    color:var(--text);
+    background:rgba(2,22,36,0.32);
+    font:inherit;
+    font-size:16px;
+    font-weight:800;
+    outline:none;
+    box-shadow:inset 0 1px 0 rgba(255,255,255,0.12);
+}
+
+.manual-form input::placeholder{
+    color:rgba(204,232,244,0.56);
+    font-weight:600;
+}
+
+.manual-form input:focus{
+    border-color:rgba(120,202,255,0.86);
+    box-shadow:
+        0 0 0 3px rgba(4,120,255,0.18),
+        inset 0 1px 0 rgba(255,255,255,0.14);
+}
+
+.manual-form button{
+    width:auto;
+    min-width:128px;
+    white-space:nowrap;
 }
 
 .icon-btn{
@@ -691,7 +740,8 @@ button{
     .sea-friend.turtle{ left:28px; bottom:42px; width:40px; height:40px; font-size:23px; }
     .sea-friend.penguin{ right:42px; bottom:42px; width:40px; height:40px; font-size:23px; }
 
-    .notify-panel{
+    .notify-panel,
+    .manual-form{
         grid-template-columns:1fr;
     }
 
@@ -701,6 +751,11 @@ button{
 
     .icon-btn{
         flex:1;
+    }
+
+    .manual-form button{
+        width:100%;
+        min-width:0;
     }
 
     .main-info{ grid-template-columns:1fr; }
@@ -782,6 +837,24 @@ button{
         </section>
     </section>
 
+    <section class="manual-panel" aria-label="クラス番号入力">
+        <div>
+            <div class="manual-title">クラス番号で出席</div>
+            <div id="manualStatus" class="manual-status">番号を入力すると、その出席ページを開けます</div>
+        </div>
+        <form id="manualClassForm" class="manual-form">
+            <input
+                id="classNumberInput"
+                type="text"
+                inputmode="numeric"
+                autocomplete="off"
+                placeholder="例: 5103"
+                aria-label="クラス番号"
+            />
+            <button class="active-btn" type="submit">開く</button>
+        </form>
+    </section>
+
     <section class="notify-panel" aria-label="通知設定">
         <div>
             <div class="notify-title">出席通知</div>
@@ -809,6 +882,7 @@ button{
 <script>
 const baseUrl = "https://attendance.is.it-chiba.ac.jp/attendance/class_room/";
 const notificationKey = "cit-attendance-notified";
+const manualClassNumberKey = "cit-attendance-manual-class-number";
 const notificationLeadMinutes = 30;
 const warningMinutesBeforeStart = 5;
 
@@ -819,7 +893,7 @@ const timetable = {
     ],
     2:[
         { subject:"TCP/IP概論", room:"8102", start:"09:00", end:"11:00" },
-        { subject:"英語理解 3f", room:"5205", start:"11:00", end:"13:00" },
+        { subject:"英語読解 3f", room:"5205", start:"11:00", end:"13:00" },
         { subject:"微分方程式", room:"8206", start:"14:00", end:"16:00" }
     ],
     3:[
@@ -842,6 +916,9 @@ const notifyButton = document.getElementById("notifyButton");
 const testNotifyButton = document.getElementById("testNotifyButton");
 const notifyStatus = document.getElementById("notifyStatus");
 const notifySlash = document.getElementById("notifySlash");
+const manualClassForm = document.getElementById("manualClassForm");
+const classNumberInput = document.getElementById("classNumberInput");
+const manualStatus = document.getElementById("manualStatus");
 
 function updateClock(){
     const now = new Date();
@@ -879,6 +956,48 @@ function minutesText(minutes){
     }
 
     return h + "時間" + m + "分";
+}
+
+function normalizeClassNumber(value){
+    return value.trim().replace(/\s+/g,"");
+}
+
+function getAttendanceUrlByNumber(classNumber){
+    return baseUrl + encodeURIComponent(classNumber);
+}
+
+function openAttendanceByNumber(classNumber){
+    window.open(getAttendanceUrlByNumber(classNumber),"_blank");
+}
+
+function saveManualClassNumber(classNumber){
+    localStorage.setItem(manualClassNumberKey,classNumber);
+}
+
+function loadManualClassNumber(){
+    const saved = localStorage.getItem(manualClassNumberKey);
+
+    if(saved){
+        classNumberInput.value = saved;
+        manualStatus.textContent = "前回の番号 " + saved + " を入力済みです";
+    }
+}
+
+function handleManualClassSubmit(event){
+    event.preventDefault();
+
+    const classNumber = normalizeClassNumber(classNumberInput.value);
+
+    if(!classNumber){
+        manualStatus.textContent = "クラス番号を入力してください";
+        classNumberInput.focus();
+        return;
+    }
+
+    classNumberInput.value = classNumber;
+    saveManualClassNumber(classNumber);
+    manualStatus.textContent = "クラス番号 " + classNumber + " のページを開きます";
+    openAttendanceByNumber(classNumber);
 }
 
 function getClassState(cls,currentMinutes){
@@ -964,7 +1083,7 @@ function areNotificationsOn(){
 }
 
 function getAttendanceUrl(cls){
-    return baseUrl + encodeURIComponent(cls.room);
+    return getAttendanceUrlByNumber(cls.room);
 }
 
 function showNotification(title,body,cls,tag){
@@ -988,13 +1107,15 @@ function showNotification(title,body,cls,tag){
 
 function updateNotificationUi(){
     if(!canUseNotifications()){
-        notifyStatus.textContent = "このブラウザは通知に未対応です";
+        notifyStatus.textContent = "このブラウザは通知に対応していません";
         notifyButton.className = "icon-btn disabled-btn";
         notifyButton.disabled = true;
         testNotifyButton.disabled = true;
         testNotifyButton.className = "icon-btn disabled-btn";
         return;
     }
+
+    notifyButton.disabled = false;
 
     if(Notification.permission === "granted"){
         notifyStatus.textContent = "オン・受付開始時と5分前に通知";
@@ -1008,10 +1129,11 @@ function updateNotificationUi(){
     }
 
     if(Notification.permission === "denied"){
-        notifyStatus.textContent = "ブラウザ設定でブロック中";
+        notifyStatus.textContent = "ブラウザ設定で通知がブロックされています";
         notifyButton.title = "通知ブロック中";
         notifyButton.setAttribute("aria-label","通知ブロック中");
         notifyButton.className = "icon-btn disabled-btn";
+        notifyButton.disabled = true;
         notifySlash.style.display = "";
         testNotifyButton.disabled = true;
         testNotifyButton.className = "icon-btn disabled-btn";
@@ -1022,7 +1144,6 @@ function updateNotificationUi(){
     notifyButton.title = "通知をオン";
     notifyButton.setAttribute("aria-label","通知をオン");
     notifyButton.className = "icon-btn ready-btn";
-    notifyButton.disabled = false;
     notifySlash.style.display = "";
     testNotifyButton.disabled = true;
     testNotifyButton.className = "icon-btn disabled-btn";
@@ -1044,7 +1165,6 @@ async function requestNotifications(){
 
 function buildNotificationItems(cls,currentMinutes,todayKey){
     const start = timeToMinutes(cls.start);
-    const end = timeToMinutes(cls.end);
     const openTime = start - notificationLeadMinutes;
     const warningTime = start - warningMinutesBeforeStart;
     const classKey = `${todayKey}-${cls.room}-${cls.start}`;
@@ -1054,7 +1174,7 @@ function buildNotificationItems(cls,currentMinutes,todayKey){
         items.push({
             key:`${classKey}-open`,
             title:"出席受付が始まりました",
-            body:`${cls.subject} / ${cls.room}教室 / ${cls.start}開始`
+            body:`${cls.subject} / ${cls.room} / ${cls.start}開始`
         });
     }
 
@@ -1102,7 +1222,7 @@ function renderSchedule(){
     container.innerHTML = "";
 
     if(!todayClasses){
-        container.innerHTML = "<div class='card empty'>今日は授業なし</div>";
+        container.innerHTML = "<div class='card empty'>今日は授業がありません</div>";
         return;
     }
 
@@ -1129,7 +1249,7 @@ function renderSchedule(){
                 </div>
 
                 <div class="info-box">
-                    <div class="info-title">教室</div>
+                    <div class="info-title">クラス番号</div>
                     <div class="info-value">${cls.room}</div>
                 </div>
             </div>
@@ -1165,17 +1285,19 @@ function update(){
     checkAttendanceNotifications();
 }
 
+manualClassForm.addEventListener("submit",handleManualClassSubmit);
 notifyButton.addEventListener("click",requestNotifications);
 testNotifyButton.addEventListener("click",() => {
     const cls = {
         subject:"テスト通知",
-        room:"5103",
+        room:normalizeClassNumber(classNumberInput.value) || "5103",
         start:"--:--"
     };
 
     showNotification("出席通知テスト","通知を押すと出席ページを開きます",cls,"cit-attendance-test");
 });
 
+loadManualClassNumber();
 update();
 setInterval(update,1000);
 </script>
