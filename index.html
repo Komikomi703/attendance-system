@@ -1,1384 +1,1378 @@
 <!doctype html>
 <html lang="ja">
+
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="theme-color" content="#58c9ed">
-<meta name="color-scheme" content="light">
-<meta name="description" content="夏の海をテーマにした出席ナビ">
-<title>出席ナビ｜Summer Campus</title>
-
-<style>
-:root {
-    --ink: #123b4a;
-    --ink-soft: #537380;
-    --white: #ffffff;
-    --sky: #dff8ff;
-    --aqua: #39bdd6;
-    --aqua-dark: #087e9f;
-    --navy: #075a78;
-    --mint: #26c6a1;
-    --coral: #ff766d;
-    --sun: #ffd56a;
-    --sand: #fff5d9;
-    --line: rgba(13, 105, 132, .13);
-    --shadow: 0 22px 60px rgba(11, 104, 130, .14);
-    --shadow-small: 0 10px 28px rgba(11, 104, 130, .11);
-    --radius-xl: 30px;
-    --radius-lg: 22px;
-    --radius-md: 16px;
-}
-
-* {
-    box-sizing: border-box;
-}
-
-html {
-    scroll-behavior: smooth;
-}
-
-body {
-    min-width: 320px;
-    min-height: 100vh;
-    margin: 0;
-    color: var(--ink);
-    font-family: "Hiragino Sans", "Yu Gothic UI", "Yu Gothic", system-ui, sans-serif;
-    background:
-        radial-gradient(circle at 85% 7%, rgba(255, 223, 130, .56) 0 6%, transparent 6.2%),
-        linear-gradient(180deg, #c9f3ff 0, #effcff 27rem, #fffaf0 27rem, #fffdf7 100%);
-}
-
-button,
-input {
-    font: inherit;
-}
-
-button,
-a {
-    -webkit-tap-highlight-color: transparent;
-}
-
-button {
-    border: 0;
-}
-
-.visually-hidden {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    padding: 0;
-    overflow: hidden;
-    clip: rect(0, 0, 0, 0);
-    white-space: nowrap;
-    border: 0;
-}
-
-button:not(:disabled) {
-    cursor: pointer;
-}
-
-.page-shell {
-    position: relative;
-    width: min(100% - 32px, 960px);
-    margin: 0 auto;
-    padding: 22px 0 56px;
-}
-
-.hero {
-    position: relative;
-    min-height: 292px;
-    margin-bottom: 20px;
-    overflow: hidden;
-    border: 1px solid rgba(255, 255, 255, .8);
-    border-radius: var(--radius-xl);
-    color: var(--white);
-    background:
-        linear-gradient(160deg, rgba(34, 183, 219, .2), transparent 45%),
-        linear-gradient(135deg, #50c7e5 0%, #1b9fc7 58%, #087b9d 100%);
-    box-shadow: var(--shadow);
-    isolation: isolate;
-}
-
-.hero::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    z-index: -2;
-    opacity: .58;
-    background:
-        radial-gradient(circle at 14% 30%, rgba(255, 255, 255, .23) 0 2px, transparent 3px),
-        radial-gradient(circle at 32% 16%, rgba(255, 255, 255, .15) 0 1px, transparent 2px);
-    background-size: 48px 48px, 34px 34px;
-}
-
-.hero-copy {
-    position: relative;
-    z-index: 3;
-    width: min(58%, 520px);
-    padding: 38px 38px 34px;
-}
-
-.eyebrow {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    margin: 0 0 16px;
-    padding: 7px 12px;
-    border: 1px solid rgba(255, 255, 255, .44);
-    border-radius: 999px;
-    background: rgba(255, 255, 255, .15);
-    font-size: 12px;
-    font-weight: 800;
-    letter-spacing: .12em;
-    text-transform: uppercase;
-    backdrop-filter: blur(8px);
-}
-
-.eyebrow::before {
-    content: "";
-    width: 7px;
-    height: 7px;
-    border-radius: 50%;
-    background: var(--sun);
-    box-shadow: 0 0 0 4px rgba(255, 213, 106, .2);
-}
-
-h1 {
-    margin: 0;
-    font-size: clamp(34px, 6vw, 54px);
-    line-height: 1.05;
-    letter-spacing: -.04em;
-}
-
-.hero-lead {
-    margin: 12px 0 16px;
-    color: rgba(255, 255, 255, .82);
-    font-size: 14px;
-    font-weight: 700;
-}
-
-.clock-row {
-    position: relative;
-    z-index: 4;
-    display: flex;
-    align-items: baseline;
-    gap: 12px;
-    width: fit-content;
-    padding: 7px 11px;
-    border: 1px solid rgba(255, 255, 255, .16);
-    border-radius: 15px;
-    background: rgba(4, 91, 126, .2);
-    backdrop-filter: blur(6px);
-    transform: translateY(-3px);
-}
-
-#clock {
-    font-size: clamp(28px, 4vw, 38px);
-    font-weight: 800;
-    font-variant-numeric: tabular-nums;
-    letter-spacing: -.03em;
-}
-
-#today {
-    color: rgba(255, 255, 255, .82);
-    font-size: 13px;
-    font-weight: 700;
-}
-
-.sun {
-    position: absolute;
-    top: 30px;
-    right: 42px;
-    width: 78px;
-    height: 78px;
-    border-radius: 50%;
-    background: #ffe39a;
-    box-shadow:
-        0 0 0 14px rgba(255, 227, 154, .12),
-        0 0 55px rgba(255, 224, 135, .52);
-}
-
-.cloud {
-    position: absolute;
-    top: 77px;
-    right: 174px;
-    width: 80px;
-    height: 20px;
-    border-radius: 999px;
-    background: rgba(255, 255, 255, .64);
-    filter: blur(.2px);
-}
-
-.cloud::before,
-.cloud::after {
-    content: "";
-    position: absolute;
-    bottom: 0;
-    border-radius: 50%;
-    background: inherit;
-}
-
-.cloud::before {
-    left: 13px;
-    width: 32px;
-    height: 32px;
-}
-
-.cloud::after {
-    right: 13px;
-    width: 42px;
-    height: 42px;
-}
-
-.island {
-    position: absolute;
-    right: 58px;
-    bottom: 62px;
-    z-index: 1;
-    width: 208px;
-    height: 36px;
-    border-radius: 52% 48% 46% 54%;
-    background: linear-gradient(180deg, #ffeab7, #e7bd70);
-    transform: rotate(-2deg);
-    box-shadow: 0 13px 28px rgba(5, 89, 113, .2);
-}
-
-.palm {
-    position: absolute;
-    right: 145px;
-    bottom: 87px;
-    z-index: 2;
-    width: 12px;
-    height: 112px;
-    border-radius: 999px;
-    background: linear-gradient(90deg, #8e6238, #ce9b5c 50%, #85552d);
-    transform: rotate(8deg);
-    transform-origin: bottom;
-}
-
-.palm::before {
-    content: "";
-    position: absolute;
-    top: -18px;
-    left: -48px;
-    width: 108px;
-    height: 68px;
-    background: #24a77d;
-    clip-path: polygon(52% 44%, 4% 11%, 42% 48%, 18% 66%, 47% 51%, 42% 99%, 55% 53%, 88% 91%, 62% 49%, 100% 35%, 60% 42%, 79% 0);
-    filter: drop-shadow(0 6px 5px rgba(4, 91, 76, .16));
-}
-
-.ball {
-    position: absolute;
-    right: 236px;
-    bottom: 68px;
-    z-index: 3;
-    width: 34px;
-    height: 34px;
-    border: 2px solid rgba(255, 255, 255, .88);
-    border-radius: 50%;
-    background: conic-gradient(var(--coral) 0 25%, #fff 25% 50%, var(--sun) 50% 75%, #fff 75%);
-    transform: rotate(18deg);
-}
-
-.waves {
-    position: absolute;
-    inset: auto -4% -1px;
-    z-index: 2;
-    height: 76px;
-    background:
-        radial-gradient(68px 23px at 50% 0, transparent 48%, rgba(255, 255, 255, .74) 51% 57%, transparent 60%) 0 7px / 130px 42px repeat-x,
-        linear-gradient(180deg, rgba(112, 220, 233, .82), rgba(12, 135, 173, .68));
-}
-
-.content-grid {
-    display: grid;
-    grid-template-columns: minmax(0, 1.55fr) minmax(260px, .75fr);
-    gap: 20px;
-    align-items: start;
-}
-
-.stack {
-    display: grid;
-    gap: 20px;
-}
-
-.panel {
-    position: relative;
-    overflow: hidden;
-    border: 1px solid var(--line);
-    border-radius: var(--radius-lg);
-    background: rgba(255, 255, 255, .88);
-    box-shadow: var(--shadow-small);
-    backdrop-filter: blur(16px);
-}
-
-.panel::after {
-    content: "";
-    position: absolute;
-    inset: 0 0 auto;
-    height: 3px;
-    background: linear-gradient(90deg, var(--aqua), var(--mint), var(--sun));
-}
-
-.quick-panel {
-    padding: 26px;
-}
-
-.panel-heading {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    gap: 14px;
-    margin-bottom: 20px;
-}
-
-.section-kicker {
-    margin: 0 0 5px;
-    color: var(--aqua-dark);
-    font-size: 11px;
-    font-weight: 900;
-    letter-spacing: .12em;
-    text-transform: uppercase;
-}
-
-h2 {
-    margin: 0;
-    font-size: 22px;
-    letter-spacing: -.02em;
-}
-
-.number-chip {
-    flex: 0 0 auto;
-    display: grid;
-    place-items: center;
-    width: 44px;
-    height: 44px;
-    border-radius: 14px;
-    color: var(--aqua-dark);
-    background: #e5fafd;
-}
-
-.number-chip svg,
-.icon-button svg,
-.button-icon {
-    width: 22px;
-    height: 22px;
-    fill: none;
-    stroke: currentColor;
-    stroke-width: 2;
-    stroke-linecap: round;
-    stroke-linejoin: round;
-}
-
-.quick-form {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) auto;
-    gap: 10px;
-}
-
-.input-wrap {
-    position: relative;
-}
-
-.input-wrap input {
-    width: 100%;
-    min-height: 54px;
-    padding: 0 48px 0 16px;
-    border: 1.5px solid #cde8ee;
-    border-radius: 14px;
-    outline: 0;
-    color: var(--ink);
-    background: #f8fdfe;
-    font-size: 17px;
-    font-weight: 800;
-    font-variant-numeric: tabular-nums;
-    transition: border-color .2s, box-shadow .2s, background .2s;
-}
-
-.input-wrap input::placeholder {
-    color: #9bb2ba;
-    font-weight: 600;
-}
-
-.input-wrap input:focus {
-    border-color: var(--aqua);
-    background: #fff;
-    box-shadow: 0 0 0 4px rgba(57, 189, 214, .13);
-}
-
-.input-mark {
-    position: absolute;
-    top: 50%;
-    right: 15px;
-    color: #8cb0bb;
-    font-size: 12px;
-    font-weight: 900;
-    transform: translateY(-50%);
-}
-
-.primary-button,
-.class-button {
-    display: inline-flex;
-    justify-content: center;
-    align-items: center;
-    gap: 9px;
-    min-height: 54px;
-    padding: 0 20px;
-    border-radius: 14px;
-    color: #fff;
-    background: linear-gradient(135deg, #13a9c8, #087e9f);
-    box-shadow: 0 9px 20px rgba(8, 126, 159, .2);
-    font-weight: 900;
-    transition: transform .18s, box-shadow .18s, filter .18s;
-}
-
-.primary-button:hover,
-.class-button:not(:disabled):hover {
-    transform: translateY(-2px);
-    box-shadow: 0 12px 25px rgba(8, 126, 159, .26);
-    filter: saturate(1.08);
-}
-
-.primary-button:active,
-.class-button:not(:disabled):active {
-    transform: translateY(0);
-}
-
-.primary-button:focus-visible,
-.class-button:focus-visible,
-.icon-button:focus-visible {
-    outline: 3px solid rgba(255, 118, 109, .38);
-    outline-offset: 3px;
-}
-
-.form-note,
-.notify-description {
-    min-height: 20px;
-    margin: 10px 2px 0;
-    color: var(--ink-soft);
-    font-size: 12px;
-    font-weight: 650;
-    line-height: 1.55;
-}
-
-.form-note.is-error {
-    color: #c34c48;
-}
-
-.schedule-panel {
-    padding: 26px;
-}
-
-.schedule-heading {
-    margin-bottom: 16px;
-}
-
-.schedule-date {
-    flex: 0 0 auto;
-    padding: 7px 11px;
-    border-radius: 999px;
-    color: var(--navy);
-    background: #edfafd;
-    font-size: 12px;
-    font-weight: 850;
-}
-
-#schedule {
-    display: grid;
-    gap: 12px;
-}
-
-.class-card {
-    position: relative;
-    display: grid;
-    grid-template-columns: 78px minmax(0, 1fr) auto;
-    gap: 16px;
-    align-items: center;
-    min-height: 114px;
-    padding: 17px;
-    overflow: hidden;
-    border: 1px solid #dceef1;
-    border-radius: 18px;
-    background: #fff;
-}
-
-.class-card::before {
-    content: "";
-    position: absolute;
-    inset: 0 auto 0 0;
-    width: 5px;
-    background: #c3d8dd;
-}
-
-.class-card.current {
-    border-color: rgba(38, 198, 161, .43);
-    background: linear-gradient(105deg, #f2fffb, #fff);
-    box-shadow: 0 12px 28px rgba(31, 170, 140, .1);
-}
-
-.class-card.current::before {
-    background: var(--mint);
-}
-
-.class-card.ready {
-    border-color: rgba(57, 189, 214, .45);
-    background: linear-gradient(105deg, #f0fcff, #fff);
-}
-
-.class-card.ready::before {
-    background: var(--aqua);
-}
-
-.class-card.next::before {
-    background: var(--sun);
-}
-
-.class-card.ended {
-    opacity: .64;
-    background: #f8fbfb;
-}
-
-.class-time {
-    padding-right: 15px;
-    border-right: 1px dashed #cde1e5;
-    text-align: center;
-    font-size: 18px;
-    font-weight: 900;
-    font-variant-numeric: tabular-nums;
-}
-
-.class-time small {
-    display: block;
-    margin-top: 3px;
-    color: #8aa3ac;
-    font-size: 11px;
-    font-weight: 750;
-}
-
-.class-main {
-    min-width: 0;
-}
-
-.class-meta {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 7px;
-    align-items: center;
-    margin-bottom: 7px;
-}
-
-.state-label {
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
-    padding: 4px 8px;
-    border-radius: 999px;
-    color: #607e87;
-    background: #edf3f4;
-    font-size: 10px;
-    font-weight: 900;
-}
-
-.state-label::before {
-    content: "";
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-    background: currentColor;
-}
-
-.current .state-label {
-    color: #087f66;
-    background: #ddf9f1;
-}
-
-.ready .state-label {
-    color: #087e9f;
-    background: #ddf7fb;
-}
-
-.next .state-label {
-    color: #967026;
-    background: #fff6d9;
-}
-
-.room-label {
-    color: #78929a;
-    font-size: 11px;
-    font-weight: 800;
-}
-
-.class-subject {
-    overflow: hidden;
-    margin: 0;
-    font-size: 16px;
-    font-weight: 900;
-    line-height: 1.4;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-}
-
-.class-status {
-    margin: 5px 0 0;
-    color: var(--ink-soft);
-    font-size: 11px;
-    font-weight: 650;
-}
-
-.class-action {
-    width: 118px;
-}
-
-.class-button {
-    width: 100%;
-    min-height: 45px;
-    padding: 0 13px;
-    font-size: 12px;
-}
-
-.class-button:disabled {
-    color: #82989f;
-    background: #edf2f3;
-    box-shadow: none;
-    cursor: not-allowed;
-}
-
-.progress-track {
-    width: 100%;
-    height: 4px;
-    margin-top: 10px;
-    overflow: hidden;
-    border-radius: 999px;
-    background: #e5f0f2;
-}
-
-.progress-bar {
-    width: 0;
-    height: 100%;
-    border-radius: inherit;
-    background: linear-gradient(90deg, var(--aqua), var(--mint));
-}
-
-.empty-state {
-    padding: 34px 20px;
-    border: 1px dashed #bfdee4;
-    border-radius: 18px;
-    color: var(--ink-soft);
-    background: #f8fdfe;
-    text-align: center;
-}
-
-.empty-icon {
-    display: block;
-    margin-bottom: 9px;
-    font-size: 28px;
-}
-
-.notify-panel {
-    padding: 24px;
-}
-
-.notify-visual {
-    display: grid;
-    place-items: center;
-    width: 54px;
-    height: 54px;
-    margin-bottom: 18px;
-    border-radius: 18px;
-    color: var(--coral);
-    background: #fff0ed;
-}
-
-.notify-visual svg {
-    width: 27px;
-    height: 27px;
-    fill: none;
-    stroke: currentColor;
-    stroke-width: 2;
-    stroke-linecap: round;
-    stroke-linejoin: round;
-}
-
-.notify-title {
-    margin: 0 0 7px;
-    font-size: 18px;
-}
-
-.notify-description {
-    min-height: 0;
-    margin: 0;
-}
-
-.notify-actions {
-    display: grid;
-    grid-template-columns: 1fr auto;
-    gap: 9px;
-    margin-top: 18px;
-}
-
-.notify-toggle {
-    min-height: 44px;
-    border: 1px solid #cde5ea;
-    border-radius: 13px;
-    color: var(--aqua-dark);
-    background: #effafd;
-    font-size: 12px;
-    font-weight: 900;
-}
-
-.notify-toggle.is-on {
-    border-color: #bdebdc;
-    color: #087f66;
-    background: #e5faf3;
-}
-
-.notify-toggle:disabled {
-    color: #82979d;
-    background: #edf1f2;
-    cursor: not-allowed;
-}
-
-.icon-button {
-    display: grid;
-    place-items: center;
-    width: 44px;
-    min-height: 44px;
-    border: 1px solid #cde5ea;
-    border-radius: 13px;
-    color: var(--aqua-dark);
-    background: #fff;
-}
-
-.icon-button:disabled {
-    opacity: .43;
-    cursor: not-allowed;
-}
-
-.tip-panel {
-    padding: 22px;
-    color: #6e5923;
-    background: linear-gradient(145deg, #fff8df, #fffdf5);
-}
-
-.tip-panel::after {
-    background: var(--sun);
-}
-
-.tip-title {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    margin: 0 0 8px;
-    font-size: 14px;
-}
-
-.tip-text {
-    margin: 0;
-    color: #887340;
-    font-size: 12px;
-    font-weight: 650;
-    line-height: 1.65;
-}
-
-.footer {
-    padding: 28px 0 0;
-    color: #73919b;
-    text-align: center;
-    font-size: 11px;
-    font-weight: 700;
-}
-
-@media (max-width: 780px) {
-    .content-grid {
-        grid-template-columns: 1fr;
-    }
-
-    .side-stack {
-        grid-template-columns: 1fr 1fr;
-    }
-}
-
-@media (max-width: 620px) {
-    body {
-        background: linear-gradient(180deg, #c9f3ff 0, #effcff 23rem, #fffaf0 23rem, #fffdf7 100%);
-    }
-
-    .page-shell {
-        width: min(100% - 22px, 960px);
-        padding-top: 11px;
-    }
-
-    .hero {
-        min-height: 250px;
-        border-radius: 24px;
-    }
-
-    .hero-copy {
-        width: 76%;
-        padding: 28px 24px;
-    }
-
-    .hero-lead {
-        max-width: 220px;
-        margin-bottom: 10px;
-    }
-
-    .clock-row {
-        display: block;
-    }
-
-    #today {
-        display: block;
-        margin-top: 4px;
-    }
-
-    .sun {
-        top: 22px;
-        right: 22px;
-        width: 55px;
-        height: 55px;
-    }
-
-    .cloud {
-        display: none;
-    }
-
-    .island {
-        right: -22px;
-        bottom: 55px;
-        width: 172px;
-    }
-
-    .palm {
-        right: 50px;
-        bottom: 77px;
-        height: 91px;
-    }
-
-    .ball {
-        right: 124px;
-        bottom: 60px;
-    }
-
-    .quick-panel,
-    .schedule-panel,
-    .notify-panel {
-        padding: 20px;
-    }
-
-    .quick-form {
-        grid-template-columns: 1fr;
-    }
-
-    .class-card {
-        grid-template-columns: 64px minmax(0, 1fr);
-        gap: 12px;
-    }
-
-    .class-time {
-        padding-right: 11px;
-        font-size: 16px;
-    }
-
-    .class-action {
-        grid-column: 1 / -1;
-        width: 100%;
-    }
-
-    .class-subject {
-        white-space: normal;
-    }
-
-    .side-stack {
-        grid-template-columns: 1fr;
-    }
-}
-
-@media (prefers-reduced-motion: reduce) {
-    html {
-        scroll-behavior: auto;
-    }
-
-    *,
-    *::before,
-    *::after {
-        scroll-behavior: auto !important;
-        transition-duration: .01ms !important;
-        animation-duration: .01ms !important;
-        animation-iteration-count: 1 !important;
-    }
-}
-</style>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#58c9ed">
+    <meta name="color-scheme" content="light">
+    <meta name="description" content="夏の海をテーマにした出席ナビ">
+    <title>出席｜Summer Campus</title>
+
+    <style>
+        :root {
+            --ink: #123b4a;
+            --ink-soft: #537380;
+            --white: #ffffff;
+            --sky: #dff8ff;
+            --aqua: #39bdd6;
+            --aqua-dark: #087e9f;
+            --navy: #075a78;
+            --mint: #26c6a1;
+            --coral: #ff766d;
+            --sun: #ffd56a;
+            --sand: #fff5d9;
+            --line: rgba(13, 105, 132, .13);
+            --shadow: 0 22px 60px rgba(11, 104, 130, .14);
+            --shadow-small: 0 10px 28px rgba(11, 104, 130, .11);
+            --radius-xl: 30px;
+            --radius-lg: 22px;
+            --radius-md: 16px;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            min-width: 320px;
+            min-height: 100vh;
+            margin: 0;
+            color: var(--ink);
+            font-family: "Hiragino Sans", "Yu Gothic UI", "Yu Gothic", system-ui, sans-serif;
+            background:
+                radial-gradient(circle at 85% 7%, rgba(255, 223, 130, .56) 0 6%, transparent 6.2%),
+                linear-gradient(180deg, #c9f3ff 0, #effcff 27rem, #fffaf0 27rem, #fffdf7 100%);
+        }
+
+        button,
+        input {
+            font: inherit;
+        }
+
+        button,
+        a {
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        button {
+            border: 0;
+        }
+
+        .visually-hidden {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border: 0;
+        }
+
+        button:not(:disabled) {
+            cursor: pointer;
+        }
+
+        .page-shell {
+            position: relative;
+            width: min(100% - 32px, 960px);
+            margin: 0 auto;
+            padding: 22px 0 56px;
+        }
+
+        .hero {
+            position: relative;
+            min-height: 292px;
+            margin-bottom: 20px;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, .8);
+            border-radius: var(--radius-xl);
+            color: var(--white);
+            background:
+                linear-gradient(160deg, rgba(34, 183, 219, .2), transparent 45%),
+                linear-gradient(135deg, #50c7e5 0%, #1b9fc7 58%, #087b9d 100%);
+            box-shadow: var(--shadow);
+            isolation: isolate;
+        }
+
+        .hero::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            z-index: -2;
+            opacity: .58;
+            background:
+                radial-gradient(circle at 14% 30%, rgba(255, 255, 255, .23) 0 2px, transparent 3px),
+                radial-gradient(circle at 32% 16%, rgba(255, 255, 255, .15) 0 1px, transparent 2px);
+            background-size: 48px 48px, 34px 34px;
+        }
+
+        .hero-copy {
+            position: relative;
+            z-index: 3;
+            width: min(58%, 520px);
+            padding: 38px 38px 34px;
+        }
+
+        .eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin: 0 0 16px;
+            padding: 7px 12px;
+            border: 1px solid rgba(255, 255, 255, .44);
+            border-radius: 999px;
+            background: rgba(255, 255, 255, .15);
+            font-size: 12px;
+            font-weight: 800;
+            letter-spacing: .12em;
+            text-transform: uppercase;
+            backdrop-filter: blur(8px);
+        }
+
+        .eyebrow::before {
+            content: "";
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: var(--sun);
+            box-shadow: 0 0 0 4px rgba(255, 213, 106, .2);
+        }
+
+        h1 {
+            margin: 0;
+            font-size: clamp(34px, 6vw, 54px);
+            line-height: 1.05;
+            letter-spacing: -.04em;
+        }
+
+        .hero-lead {
+            margin: 12px 0 16px;
+            color: rgba(255, 255, 255, .82);
+            font-size: 14px;
+            font-weight: 700;
+        }
+
+        .clock-row {
+            position: relative;
+            z-index: 4;
+            display: flex;
+            align-items: baseline;
+            gap: 12px;
+            width: fit-content;
+            padding: 7px 11px;
+            border: 1px solid rgba(255, 255, 255, .16);
+            border-radius: 15px;
+            background: rgba(4, 91, 126, .2);
+            backdrop-filter: blur(6px);
+            transform: translateY(-3px);
+        }
+
+        #clock {
+            font-size: clamp(28px, 4vw, 38px);
+            font-weight: 800;
+            font-variant-numeric: tabular-nums;
+            letter-spacing: -.03em;
+        }
+
+        #today {
+            color: rgba(255, 255, 255, .82);
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .sun {
+            position: absolute;
+            top: 30px;
+            right: 42px;
+            width: 78px;
+            height: 78px;
+            border-radius: 50%;
+            background: #ffe39a;
+            box-shadow:
+                0 0 0 14px rgba(255, 227, 154, .12),
+                0 0 55px rgba(255, 224, 135, .52);
+        }
+
+        .cloud {
+            position: absolute;
+            top: 77px;
+            right: 174px;
+            width: 80px;
+            height: 20px;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, .64);
+            filter: blur(.2px);
+        }
+
+        .cloud::before,
+        .cloud::after {
+            content: "";
+            position: absolute;
+            bottom: 0;
+            border-radius: 50%;
+            background: inherit;
+        }
+
+        .cloud::before {
+            left: 13px;
+            width: 32px;
+            height: 32px;
+        }
+
+        .cloud::after {
+            right: 13px;
+            width: 42px;
+            height: 42px;
+        }
+
+        .island {
+            position: absolute;
+            right: 58px;
+            bottom: 62px;
+            z-index: 1;
+            width: 208px;
+            height: 36px;
+            border-radius: 52% 48% 46% 54%;
+            background: linear-gradient(180deg, #ffeab7, #e7bd70);
+            transform: rotate(-2deg);
+            box-shadow: 0 13px 28px rgba(5, 89, 113, .2);
+        }
+
+        .palm {
+            position: absolute;
+            right: 145px;
+            bottom: 87px;
+            z-index: 2;
+            width: 12px;
+            height: 112px;
+            border-radius: 999px;
+            background: linear-gradient(90deg, #8e6238, #ce9b5c 50%, #85552d);
+            transform: rotate(8deg);
+            transform-origin: bottom;
+        }
+
+        .palm::before {
+            content: "";
+            position: absolute;
+            top: -18px;
+            left: -48px;
+            width: 108px;
+            height: 68px;
+            background: #24a77d;
+            clip-path: polygon(52% 44%, 4% 11%, 42% 48%, 18% 66%, 47% 51%, 42% 99%, 55% 53%, 88% 91%, 62% 49%, 100% 35%, 60% 42%, 79% 0);
+            filter: drop-shadow(0 6px 5px rgba(4, 91, 76, .16));
+        }
+
+        .ball {
+            position: absolute;
+            right: 236px;
+            bottom: 68px;
+            z-index: 3;
+            width: 34px;
+            height: 34px;
+            border: 2px solid rgba(255, 255, 255, .88);
+            border-radius: 50%;
+            background: conic-gradient(var(--coral) 0 25%, #fff 25% 50%, var(--sun) 50% 75%, #fff 75%);
+            transform: rotate(18deg);
+        }
+
+        .waves {
+            position: absolute;
+            inset: auto -4% -1px;
+            z-index: 2;
+            height: 76px;
+            background:
+                radial-gradient(68px 23px at 50% 0, transparent 48%, rgba(255, 255, 255, .74) 51% 57%, transparent 60%) 0 7px / 130px 42px repeat-x,
+                linear-gradient(180deg, rgba(112, 220, 233, .82), rgba(12, 135, 173, .68));
+        }
+
+        .content-grid {
+            display: grid;
+            grid-template-columns: minmax(0, 1.55fr) minmax(260px, .75fr);
+            gap: 20px;
+            align-items: start;
+        }
+
+        .stack {
+            display: grid;
+            gap: 20px;
+        }
+
+        .panel {
+            position: relative;
+            overflow: hidden;
+            border: 1px solid var(--line);
+            border-radius: var(--radius-lg);
+            background: rgba(255, 255, 255, .88);
+            box-shadow: var(--shadow-small);
+            backdrop-filter: blur(16px);
+        }
+
+        .panel::after {
+            content: "";
+            position: absolute;
+            inset: 0 0 auto;
+            height: 3px;
+            background: linear-gradient(90deg, var(--aqua), var(--mint), var(--sun));
+        }
+
+        .quick-panel {
+            padding: 26px;
+        }
+
+        .panel-heading {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 14px;
+            margin-bottom: 20px;
+        }
+
+        .section-kicker {
+            margin: 0 0 5px;
+            color: var(--aqua-dark);
+            font-size: 11px;
+            font-weight: 900;
+            letter-spacing: .12em;
+            text-transform: uppercase;
+        }
+
+        h2 {
+            margin: 0;
+            font-size: 22px;
+            letter-spacing: -.02em;
+        }
+
+        .number-chip {
+            flex: 0 0 auto;
+            display: grid;
+            place-items: center;
+            width: 44px;
+            height: 44px;
+            border-radius: 14px;
+            color: var(--aqua-dark);
+            background: #e5fafd;
+        }
+
+        .number-chip svg,
+        .icon-button svg,
+        .button-icon {
+            width: 22px;
+            height: 22px;
+            fill: none;
+            stroke: currentColor;
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        .quick-form {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) auto;
+            gap: 10px;
+        }
+
+        .input-wrap {
+            position: relative;
+        }
+
+        .input-wrap input {
+            width: 100%;
+            min-height: 54px;
+            padding: 0 48px 0 16px;
+            border: 1.5px solid #cde8ee;
+            border-radius: 14px;
+            outline: 0;
+            color: var(--ink);
+            background: #f8fdfe;
+            font-size: 17px;
+            font-weight: 800;
+            font-variant-numeric: tabular-nums;
+            transition: border-color .2s, box-shadow .2s, background .2s;
+        }
+
+        .input-wrap input::placeholder {
+            color: #9bb2ba;
+            font-weight: 600;
+        }
+
+        .input-wrap input:focus {
+            border-color: var(--aqua);
+            background: #fff;
+            box-shadow: 0 0 0 4px rgba(57, 189, 214, .13);
+        }
+
+        .input-mark {
+            position: absolute;
+            top: 50%;
+            right: 15px;
+            color: #8cb0bb;
+            font-size: 12px;
+            font-weight: 900;
+            transform: translateY(-50%);
+        }
+
+        .primary-button,
+        .class-button {
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            gap: 9px;
+            min-height: 54px;
+            padding: 0 20px;
+            border-radius: 14px;
+            color: #fff;
+            background: linear-gradient(135deg, #13a9c8, #087e9f);
+            box-shadow: 0 9px 20px rgba(8, 126, 159, .2);
+            font-weight: 900;
+            transition: transform .18s, box-shadow .18s, filter .18s;
+        }
+
+        .primary-button:hover,
+        .class-button:not(:disabled):hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 25px rgba(8, 126, 159, .26);
+            filter: saturate(1.08);
+        }
+
+        .primary-button:active,
+        .class-button:not(:disabled):active {
+            transform: translateY(0);
+        }
+
+        .primary-button:focus-visible,
+        .class-button:focus-visible,
+        .icon-button:focus-visible {
+            outline: 3px solid rgba(255, 118, 109, .38);
+            outline-offset: 3px;
+        }
+
+        .form-note,
+        .notify-description {
+            min-height: 20px;
+            margin: 10px 2px 0;
+            color: var(--ink-soft);
+            font-size: 12px;
+            font-weight: 650;
+            line-height: 1.55;
+        }
+
+        .form-note.is-error {
+            color: #c34c48;
+        }
+
+        .schedule-panel {
+            padding: 26px;
+        }
+
+        .schedule-heading {
+            margin-bottom: 16px;
+        }
+
+        .schedule-date {
+            flex: 0 0 auto;
+            padding: 7px 11px;
+            border-radius: 999px;
+            color: var(--navy);
+            background: #edfafd;
+            font-size: 12px;
+            font-weight: 850;
+        }
+
+        #schedule {
+            display: grid;
+            gap: 12px;
+        }
+
+        .class-card {
+            position: relative;
+            display: grid;
+            grid-template-columns: 78px minmax(0, 1fr) auto;
+            gap: 16px;
+            align-items: center;
+            min-height: 114px;
+            padding: 17px;
+            overflow: hidden;
+            border: 1px solid #dceef1;
+            border-radius: 18px;
+            background: #fff;
+        }
+
+        .class-card::before {
+            content: "";
+            position: absolute;
+            inset: 0 auto 0 0;
+            width: 5px;
+            background: #c3d8dd;
+        }
+
+        .class-card.current {
+            border-color: rgba(38, 198, 161, .43);
+            background: linear-gradient(105deg, #f2fffb, #fff);
+            box-shadow: 0 12px 28px rgba(31, 170, 140, .1);
+        }
+
+        .class-card.current::before {
+            background: var(--mint);
+        }
+
+        .class-card.ready {
+            border-color: rgba(57, 189, 214, .45);
+            background: linear-gradient(105deg, #f0fcff, #fff);
+        }
+
+        .class-card.ready::before {
+            background: var(--aqua);
+        }
+
+        .class-card.next::before {
+            background: var(--sun);
+        }
+
+        .class-card.ended {
+            opacity: .64;
+            background: #f8fbfb;
+        }
+
+        .class-time {
+            padding-right: 15px;
+            border-right: 1px dashed #cde1e5;
+            text-align: center;
+            font-size: 18px;
+            font-weight: 900;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .class-time small {
+            display: block;
+            margin-top: 3px;
+            color: #8aa3ac;
+            font-size: 11px;
+            font-weight: 750;
+        }
+
+        .class-main {
+            min-width: 0;
+        }
+
+        .class-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 7px;
+            align-items: center;
+            margin-bottom: 7px;
+        }
+
+        .state-label {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 4px 8px;
+            border-radius: 999px;
+            color: #607e87;
+            background: #edf3f4;
+            font-size: 10px;
+            font-weight: 900;
+        }
+
+        .state-label::before {
+            content: "";
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: currentColor;
+        }
+
+        .current .state-label {
+            color: #087f66;
+            background: #ddf9f1;
+        }
+
+        .ready .state-label {
+            color: #087e9f;
+            background: #ddf7fb;
+        }
+
+        .next .state-label {
+            color: #967026;
+            background: #fff6d9;
+        }
+
+        .room-label {
+            color: #78929a;
+            font-size: 11px;
+            font-weight: 800;
+        }
+
+        .class-subject {
+            overflow: hidden;
+            margin: 0;
+            font-size: 16px;
+            font-weight: 900;
+            line-height: 1.4;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .class-status {
+            margin: 5px 0 0;
+            color: var(--ink-soft);
+            font-size: 11px;
+            font-weight: 650;
+        }
+
+        .class-action {
+            width: 118px;
+        }
+
+        .class-button {
+            width: 100%;
+            min-height: 45px;
+            padding: 0 13px;
+            font-size: 12px;
+        }
+
+        .class-button:disabled {
+            color: #82989f;
+            background: #edf2f3;
+            box-shadow: none;
+            cursor: not-allowed;
+        }
+
+        .progress-track {
+            width: 100%;
+            height: 4px;
+            margin-top: 10px;
+            overflow: hidden;
+            border-radius: 999px;
+            background: #e5f0f2;
+        }
+
+        .progress-bar {
+            width: 0;
+            height: 100%;
+            border-radius: inherit;
+            background: linear-gradient(90deg, var(--aqua), var(--mint));
+        }
+
+        .empty-state {
+            padding: 34px 20px;
+            border: 1px dashed #bfdee4;
+            border-radius: 18px;
+            color: var(--ink-soft);
+            background: #f8fdfe;
+            text-align: center;
+        }
+
+        .empty-icon {
+            display: block;
+            margin-bottom: 9px;
+            font-size: 28px;
+        }
+
+        .notify-panel {
+            padding: 24px;
+        }
+
+        .notify-visual {
+            display: grid;
+            place-items: center;
+            width: 54px;
+            height: 54px;
+            margin-bottom: 18px;
+            border-radius: 18px;
+            color: var(--coral);
+            background: #fff0ed;
+        }
+
+        .notify-visual svg {
+            width: 27px;
+            height: 27px;
+            fill: none;
+            stroke: currentColor;
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        .notify-title {
+            margin: 0 0 7px;
+            font-size: 18px;
+        }
+
+        .notify-description {
+            min-height: 0;
+            margin: 0;
+        }
+
+        .notify-actions {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 9px;
+            margin-top: 18px;
+        }
+
+        .notify-toggle {
+            min-height: 44px;
+            border: 1px solid #cde5ea;
+            border-radius: 13px;
+            color: var(--aqua-dark);
+            background: #effafd;
+            font-size: 12px;
+            font-weight: 900;
+        }
+
+        .notify-toggle.is-on {
+            border-color: #bdebdc;
+            color: #087f66;
+            background: #e5faf3;
+        }
+
+        .notify-toggle:disabled {
+            color: #82979d;
+            background: #edf1f2;
+            cursor: not-allowed;
+        }
+
+        .icon-button {
+            display: grid;
+            place-items: center;
+            width: 44px;
+            min-height: 44px;
+            border: 1px solid #cde5ea;
+            border-radius: 13px;
+            color: var(--aqua-dark);
+            background: #fff;
+        }
+
+        .icon-button:disabled {
+            opacity: .43;
+            cursor: not-allowed;
+        }
+
+        .tip-panel {
+            padding: 22px;
+            color: #6e5923;
+            background: linear-gradient(145deg, #fff8df, #fffdf5);
+        }
+
+        .tip-panel::after {
+            background: var(--sun);
+        }
+
+        .tip-title {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin: 0 0 8px;
+            font-size: 14px;
+        }
+
+        .tip-text {
+            margin: 0;
+            color: #887340;
+            font-size: 12px;
+            font-weight: 650;
+            line-height: 1.65;
+        }
+
+        .footer {
+            padding: 28px 0 0;
+            color: #73919b;
+            text-align: center;
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+        @media (max-width: 780px) {
+            .content-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .side-stack {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        @media (max-width: 620px) {
+            body {
+                background: linear-gradient(180deg, #c9f3ff 0, #effcff 23rem, #fffaf0 23rem, #fffdf7 100%);
+            }
+
+            .page-shell {
+                width: min(100% - 22px, 960px);
+                padding-top: 11px;
+            }
+
+            .hero {
+                min-height: 250px;
+                border-radius: 24px;
+            }
+
+            .hero-copy {
+                width: 76%;
+                padding: 28px 24px;
+            }
+
+            .hero-lead {
+                max-width: 220px;
+                margin-bottom: 10px;
+            }
+
+            .clock-row {
+                display: block;
+            }
+
+            #today {
+                display: block;
+                margin-top: 4px;
+            }
+
+            .sun {
+                top: 22px;
+                right: 22px;
+                width: 55px;
+                height: 55px;
+            }
+
+            .cloud {
+                display: none;
+            }
+
+            .island {
+                right: -22px;
+                bottom: 55px;
+                width: 172px;
+            }
+
+            .palm {
+                right: 50px;
+                bottom: 77px;
+                height: 91px;
+            }
+
+            .ball {
+                right: 124px;
+                bottom: 60px;
+            }
+
+            .quick-panel,
+            .schedule-panel,
+            .notify-panel {
+                padding: 20px;
+            }
+
+            .quick-form {
+                grid-template-columns: 1fr;
+            }
+
+            .class-card {
+                grid-template-columns: 64px minmax(0, 1fr);
+                gap: 12px;
+            }
+
+            .class-time {
+                padding-right: 11px;
+                font-size: 16px;
+            }
+
+            .class-action {
+                grid-column: 1 / -1;
+                width: 100%;
+            }
+
+            .class-subject {
+                white-space: normal;
+            }
+
+            .side-stack {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            html {
+                scroll-behavior: auto;
+            }
+
+            *,
+            *::before,
+            *::after {
+                scroll-behavior: auto !important;
+                transition-duration: .01ms !important;
+                animation-duration: .01ms !important;
+                animation-iteration-count: 1 !important;
+            }
+        }
+    </style>
 </head>
 
 <body>
-<main class="page-shell">
-    <header class="hero">
-        <div class="hero-copy">
-            <p class="eyebrow">Summer Campus</p>
-            <h1>出席ナビ</h1>
-            <p class="hero-lead">今日の授業へ、迷わずスムーズに。</p>
-            <div class="clock-row">
-                <time id="clock" aria-label="現在時刻">--:--:--</time>
-                <time id="today" aria-label="今日の日付">----</time>
+    <main class="page-shell">
+        <header class="hero">
+            <div class="hero-copy">
+                <p class="eyebrow">Summer Campus</p>
+                <h1>出席ナビ</h1>
+                <p class="hero-lead">今日の授業へ、迷わずスムーズに。</p>
+                <div class="clock-row">
+                    <time id="clock" aria-label="現在時刻">--:--:--</time>
+                    <time id="today" aria-label="今日の日付">----</time>
+                </div>
             </div>
-        </div>
-        <div class="sun" aria-hidden="true"></div>
-        <div class="cloud" aria-hidden="true"></div>
-        <div class="island" aria-hidden="true"></div>
-        <div class="palm" aria-hidden="true"></div>
-        <div class="ball" aria-hidden="true"></div>
-        <div class="waves" aria-hidden="true"></div>
-    </header>
+            <div class="sun" aria-hidden="true"></div>
+            <div class="cloud" aria-hidden="true"></div>
+            <div class="island" aria-hidden="true"></div>
+            <div class="palm" aria-hidden="true"></div>
+            <div class="ball" aria-hidden="true"></div>
+            <div class="waves" aria-hidden="true"></div>
+        </header>
 
-    <div class="content-grid">
-        <div class="stack">
-            <section class="panel quick-panel" aria-labelledby="quick-heading">
-                <div class="panel-heading">
-                    <div>
-                        <p class="section-kicker">Quick Access</p>
-                        <h2 id="quick-heading">クラス番号で出席</h2>
+        <div class="content-grid">
+            <div class="stack">
+                <section class="panel quick-panel" aria-labelledby="quick-heading">
+                    <div class="panel-heading">
+                        <div>
+                            <p class="section-kicker">Quick Access</p>
+                            <h2 id="quick-heading">クラス番号で出席</h2>
+                        </div>
+                        <div class="number-chip" aria-hidden="true">
+                            <svg viewBox="0 0 24 24">
+                                <path d="M8 3 6 21M18 3l-2 18M3 9h18M2 15h18" />
+                            </svg>
+                        </div>
                     </div>
-                    <div class="number-chip" aria-hidden="true">
+                    <form id="manualClassForm" class="quick-form" novalidate>
+                        <label class="input-wrap">
+                            <span class="visually-hidden"></span>
+                            <input id="classNumberInput" type="text" inputmode="numeric" autocomplete="off"
+                                maxlength="10" placeholder="例：5103" aria-label="クラス番号" aria-describedby="manualStatus">
+                            <span class="input-mark" aria-hidden="true">NO.</span>
+                        </label>
+                        <button class="primary-button" type="submit">
+                            出席ページへ
+                            <svg class="button-icon" viewBox="0 0 24 24" aria-hidden="true">
+                                <path d="M5 12h14M13 6l6 6-6 6" />
+                            </svg>
+                        </button>
+                    </form>
+                    <p id="manualStatus" class="form-note" role="status">番号を入力すると、出席ページを新しいタブで開きます。</p>
+                </section>
+
+                <section class="panel schedule-panel" aria-labelledby="schedule-heading">
+                    <div class="panel-heading schedule-heading">
+                        <div>
+                            <p class="section-kicker">Today's Classes</p>
+                            <h2 id="schedule-heading">今日の授業</h2>
+                        </div>
+                        <span id="scheduleDate" class="schedule-date">-- / --</span>
+                    </div>
+                    <div id="schedule" aria-live="polite"></div>
+                </section>
+            </div>
+
+            <aside class="stack side-stack">
+                <section class="panel notify-panel" aria-labelledby="notify-heading">
+                    <div class="notify-visual" aria-hidden="true">
                         <svg viewBox="0 0 24 24">
-                            <path d="M8 3 6 21M18 3l-2 18M3 9h18M2 15h18"/>
+                            <path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9" />
+                            <path d="M10 21h4" />
                         </svg>
                     </div>
-                </div>
-                <form id="manualClassForm" class="quick-form" novalidate>
-                    <label class="input-wrap">
-                        <span class="visually-hidden"></span>
-                        <input
-                            id="classNumberInput"
-                            type="text"
-                            inputmode="numeric"
-                            autocomplete="off"
-                            maxlength="10"
-                            placeholder="例：5103"
-                            aria-label="クラス番号"
-                            aria-describedby="manualStatus"
-                        >
-                        <span class="input-mark" aria-hidden="true">NO.</span>
-                    </label>
-                    <button class="primary-button" type="submit">
-                        出席ページへ
-                        <svg class="button-icon" viewBox="0 0 24 24" aria-hidden="true">
-                            <path d="M5 12h14M13 6l6 6-6 6"/>
-                        </svg>
-                    </button>
-                </form>
-                <p id="manualStatus" class="form-note" role="status">番号を入力すると、出席ページを新しいタブで開きます。</p>
-            </section>
+                    <h2 id="notify-heading" class="notify-title">出席リマインド</h2>
+                    <p id="notifyStatus" class="notify-description">受付開始と授業の5分前にお知らせします。</p>
+                    <div class="notify-actions">
+                        <button id="notifyButton" class="notify-toggle" type="button">通知をオン</button>
+                        <button id="testNotifyButton" class="icon-button" type="button" title="テスト通知" aria-label="テスト通知"
+                            disabled>
+                            <svg viewBox="0 0 24 24" aria-hidden="true">
+                                <path d="m8 5 11 7-11 7Z" />
+                            </svg>
+                        </button>
+                    </div>
+                </section>
 
-            <section class="panel schedule-panel" aria-labelledby="schedule-heading">
-                <div class="panel-heading schedule-heading">
-                    <div>
-                        <p class="section-kicker">Today's Classes</p>
-                        <h2 id="schedule-heading">今日の授業</h2>
-                    </div>
-                    <span id="scheduleDate" class="schedule-date">-- / --</span>
-                </div>
-                <div id="schedule" aria-live="polite"></div>
-            </section>
+                <section class="panel tip-panel" aria-labelledby="tip-heading">
+                    <h2 id="tip-heading" class="tip-title"><span aria-hidden="true">☀️</span> 夏のひとこと</h2>
+                    <p class="tip-text">暑い日は水分補給も忘れずに。少し早めの移動で、気持ちにも余裕を。</p>
+                </section>
+            </aside>
         </div>
 
-        <aside class="stack side-stack">
-            <section class="panel notify-panel" aria-labelledby="notify-heading">
-                <div class="notify-visual" aria-hidden="true">
-                    <svg viewBox="0 0 24 24">
-                        <path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"/>
-                        <path d="M10 21h4"/>
-                    </svg>
-                </div>
-                <h2 id="notify-heading" class="notify-title">出席リマインド</h2>
-                <p id="notifyStatus" class="notify-description">受付開始と授業の5分前にお知らせします。</p>
-                <div class="notify-actions">
-                    <button id="notifyButton" class="notify-toggle" type="button">通知をオン</button>
-                    <button id="testNotifyButton" class="icon-button" type="button" title="テスト通知" aria-label="テスト通知" disabled>
-                        <svg viewBox="0 0 24 24" aria-hidden="true">
-                            <path d="m8 5 11 7-11 7Z"/>
-                        </svg>
-                    </button>
-                </div>
-            </section>
+        <footer class="footer">Chiba Institute of Technology · Attendance Navigator</footer>
+    </main>
 
-            <section class="panel tip-panel" aria-labelledby="tip-heading">
-                <h2 id="tip-heading" class="tip-title"><span aria-hidden="true">☀️</span> 夏のひとこと</h2>
-                <p class="tip-text">暑い日は水分補給も忘れずに。少し早めの移動で、気持ちにも余裕を。</p>
-            </section>
-        </aside>
-    </div>
+    <script>
+        const baseUrl = "https://attendance.is.it-chiba.ac.jp/attendance/class_room/";
+        const notificationKey = "cit-attendance-notified";
+        const manualClassNumberKey = "cit-attendance-manual-class-number";
+        const notificationLeadMinutes = 30;
+        const warningMinutesBeforeStart = 5;
 
-    <footer class="footer">Chiba Institute of Technology · Attendance Navigator</footer>
-</main>
-
-<script>
-const baseUrl = "https://attendance.is.it-chiba.ac.jp/attendance/class_room/";
-const notificationKey = "cit-attendance-notified";
-const manualClassNumberKey = "cit-attendance-manual-class-number";
-const notificationLeadMinutes = 30;
-const warningMinutesBeforeStart = 5;
-
-const timetable = {
-    1: [
-        { subject: "情報メディア基礎", room: "5103", start: "10:00", end: "12:00" },
-        { subject: "NWプログラミング基礎演習", room: "3212", start: "13:00", end: "17:00" }
-    ],
-    2: [
-        { subject: "TCP/IP概論", room: "8102", start: "09:00", end: "11:00" },
-        { subject: "英語読解 3f", room: "5205", start: "11:00", end: "13:00" },
-        { subject: "微分方程式", room: "8206", start: "14:00", end: "16:00" }
-    ],
-    3: [
-        { subject: "データ構造とアルゴリズム", room: "3212", start: "10:00", end: "12:00" },
-        { subject: "確率統計", room: "8109", start: "13:00", end: "15:00" },
-        { subject: "数理モデリング", room: "8201", start: "15:00", end: "17:00" }
-    ],
-    4: [
-        { subject: "情報数学1", room: "7202", start: "11:00", end: "13:00" }
-    ],
-    5: [
-        { subject: "キャリアデザイン", room: "1102", start: "10:00", end: "12:00" },
-        { subject: "英語表現", room: "5304", start: "13:00", end: "15:00" },
-        { subject: "倫理学", room: "5102", start: "15:00", end: "17:00" }
-    ]
-};
-
-const dayNames = ["日曜日", "月曜日", "火曜日", "水曜日", "木曜日", "金曜日", "土曜日"];
-const notifyButton = document.getElementById("notifyButton");
-const testNotifyButton = document.getElementById("testNotifyButton");
-const notifyStatus = document.getElementById("notifyStatus");
-const manualClassForm = document.getElementById("manualClassForm");
-const classNumberInput = document.getElementById("classNumberInput");
-const manualStatus = document.getElementById("manualStatus");
-const scheduleDate = document.getElementById("scheduleDate");
-
-function updateClock() {
-    const now = new Date();
-
-    document.getElementById("clock").textContent = now.toLocaleTimeString("ja-JP", {
-        hour: "2-digit",
-        minute: "2-digit",
-        second: "2-digit"
-    });
-
-    document.getElementById("today").textContent =
-        now.toLocaleDateString("ja-JP", { month: "long", day: "numeric" }) +
-        " " +
-        dayNames[now.getDay()];
-
-    scheduleDate.textContent =
-        now.toLocaleDateString("ja-JP", { month: "2-digit", day: "2-digit" });
-}
-
-function timeToMinutes(timeString) {
-    const [hours, minutes] = timeString.split(":").map(Number);
-    return hours * 60 + minutes;
-}
-
-function minutesText(minutes) {
-    if (minutes <= 0) {
-        return "まもなく";
-    }
-
-    const hours = Math.floor(minutes / 60);
-    const remainingMinutes = minutes % 60;
-
-    if (hours === 0) {
-        return remainingMinutes + "分";
-    }
-
-    if (remainingMinutes === 0) {
-        return hours + "時間";
-    }
-
-    return hours + "時間" + remainingMinutes + "分";
-}
-
-function normalizeClassNumber(value) {
-    return value
-        .trim()
-        .replace(/[０-９]/g, character =>
-            String.fromCharCode(character.charCodeAt(0) - 0xFEE0)
-        )
-        .replace(/\s+/g, "");
-}
-
-function getAttendanceUrlByNumber(classNumber) {
-    return baseUrl + encodeURIComponent(classNumber);
-}
-
-function openExternal(url) {
-    const newWindow = window.open(url, "_blank", "noopener,noreferrer");
-    if (newWindow) {
-        newWindow.opener = null;
-    }
-}
-
-function openAttendanceByNumber(classNumber) {
-    openExternal(getAttendanceUrlByNumber(classNumber));
-}
-
-function saveManualClassNumber(classNumber) {
-    localStorage.setItem(manualClassNumberKey, classNumber);
-}
-
-function loadManualClassNumber() {
-    const saved = localStorage.getItem(manualClassNumberKey);
-
-    if (saved) {
-        classNumberInput.value = saved;
-        manualStatus.textContent = "前回の番号 " + saved + " を入力済みです。";
-    }
-}
-
-function handleManualClassSubmit(event) {
-    event.preventDefault();
-    const classNumber = normalizeClassNumber(classNumberInput.value);
-
-    if (!classNumber) {
-        manualStatus.textContent = "クラス番号を入力してください。";
-        manualStatus.classList.add("is-error");
-        classNumberInput.focus();
-        return;
-    }
-
-    if (!/^[0-9A-Za-z-]{3,10}$/.test(classNumber)) {
-        manualStatus.textContent = "クラス番号を3〜10文字の半角英数字で入力してください。";
-        manualStatus.classList.add("is-error");
-        classNumberInput.focus();
-        return;
-    }
-
-    manualStatus.classList.remove("is-error");
-    classNumberInput.value = classNumber;
-    saveManualClassNumber(classNumber);
-    manualStatus.textContent = "クラス番号 " + classNumber + " のページを開きます。";
-    openAttendanceByNumber(classNumber);
-}
-
-function getClassState(classItem, currentMinutes) {
-    const start = timeToMinutes(classItem.start);
-    const end = timeToMinutes(classItem.end);
-    const openTime = start - notificationLeadMinutes;
-
-    if (currentMinutes >= start && currentMinutes <= end) {
-        return {
-            type: "current",
-            label: "授業中",
-            status: "終了まで " + minutesText(end - currentMinutes),
-            buttonText: "出席する",
-            disabled: false,
-            progress: ((currentMinutes - start) / (end - start)) * 100
+        const timetable = {
+            1: [
+                { subject: "情報メディア基礎", room: "5103", start: "10:00", end: "12:00" },
+                { subject: "NWプログラミング基礎演習", room: "3212", start: "13:00", end: "17:00" }
+            ],
+            2: [
+                { subject: "TCP/IP概論", room: "8102", start: "09:00", end: "11:00" },
+                { subject: "英語読解 3f", room: "5205", start: "11:00", end: "13:00" },
+                { subject: "微分方程式", room: "8206", start: "14:00", end: "16:00" }
+            ],
+            3: [
+                { subject: "データ構造とアルゴリズム", room: "3212", start: "10:00", end: "12:00" },
+                { subject: "確率統計", room: "8109", start: "13:00", end: "15:00" },
+                { subject: "数理モデリング", room: "8201", start: "15:00", end: "17:00" }
+            ],
+            4: [
+                { subject: "情報数学1", room: "7202", start: "11:00", end: "13:00" }
+            ],
+            5: [
+                { subject: "キャリアデザイン", room: "1102", start: "10:00", end: "12:00" },
+                { subject: "英語表現", room: "5304", start: "13:00", end: "15:00" },
+                { subject: "倫理学", room: "5102", start: "15:00", end: "17:00" }
+            ]
         };
-    }
 
-    if (currentMinutes >= openTime && currentMinutes < start) {
-        return {
-            type: "ready",
-            label: "受付中",
-            status: "授業開始まで " + minutesText(start - currentMinutes),
-            buttonText: "出席する",
-            disabled: false,
-            progress: ((currentMinutes - openTime) / notificationLeadMinutes) * 100
-        };
-    }
+        const dayNames = ["日曜日", "月曜日", "火曜日", "水曜日", "木曜日", "金曜日", "土曜日"];
+        const notifyButton = document.getElementById("notifyButton");
+        const testNotifyButton = document.getElementById("testNotifyButton");
+        const notifyStatus = document.getElementById("notifyStatus");
+        const manualClassForm = document.getElementById("manualClassForm");
+        const classNumberInput = document.getElementById("classNumberInput");
+        const manualStatus = document.getElementById("manualStatus");
+        const scheduleDate = document.getElementById("scheduleDate");
 
-    if (currentMinutes < openTime) {
-        return {
-            type: "next",
-            label: "受付前",
-            status: "受付開始まで " + minutesText(openTime - currentMinutes),
-            buttonText: "受付前",
-            disabled: true,
-            progress: 0
-        };
-    }
+        function updateClock() {
+            const now = new Date();
 
-    return {
-        type: "ended",
-        label: "終了",
-        status: "この授業は終了しました",
-        buttonText: "受付終了",
-        disabled: true,
-        progress: 100
-    };
-}
+            document.getElementById("clock").textContent = now.toLocaleTimeString("ja-JP", {
+                hour: "2-digit",
+                minute: "2-digit",
+                second: "2-digit"
+            });
 
-function getTodayKey(date = new Date()) {
-    return date.toLocaleDateString("ja-JP", {
-        year: "numeric",
-        month: "2-digit",
-        day: "2-digit"
-    });
-}
+            document.getElementById("today").textContent =
+                now.toLocaleDateString("ja-JP", { month: "long", day: "numeric" }) +
+                " " +
+                dayNames[now.getDay()];
 
-function getNotificationStore() {
-    try {
-        return JSON.parse(localStorage.getItem(notificationKey)) || {};
-    } catch {
-        return {};
-    }
-}
+            scheduleDate.textContent =
+                now.toLocaleDateString("ja-JP", { month: "2-digit", day: "2-digit" });
+        }
 
-function setNotificationSent(key) {
-    const store = getNotificationStore();
-    store[key] = true;
-    localStorage.setItem(notificationKey, JSON.stringify(store));
-}
+        function timeToMinutes(timeString) {
+            const [hours, minutes] = timeString.split(":").map(Number);
+            return hours * 60 + minutes;
+        }
 
-function wasNotificationSent(key) {
-    return getNotificationStore()[key] === true;
-}
+        function minutesText(minutes) {
+            if (minutes <= 0) {
+                return "まもなく";
+            }
 
-function canUseNotifications() {
-    return "Notification" in window;
-}
+            const hours = Math.floor(minutes / 60);
+            const remainingMinutes = minutes % 60;
 
-function areNotificationsOn() {
-    return canUseNotifications() && Notification.permission === "granted";
-}
+            if (hours === 0) {
+                return remainingMinutes + "分";
+            }
 
-function showNotification(title, body, classItem, tag) {
-    if (!areNotificationsOn()) {
-        return;
-    }
+            if (remainingMinutes === 0) {
+                return hours + "時間";
+            }
 
-    const notification = new Notification(title, {
-        body,
-        tag,
-        renotify: true,
-        requireInteraction: true
-    });
+            return hours + "時間" + remainingMinutes + "分";
+        }
 
-    notification.onclick = () => {
-        window.focus();
-        openAttendanceByNumber(classItem.room);
-        notification.close();
-    };
-}
+        function normalizeClassNumber(value) {
+            return value
+                .trim()
+                .replace(/[０-９]/g, character =>
+                    String.fromCharCode(character.charCodeAt(0) - 0xFEE0)
+                )
+                .replace(/\s+/g, "");
+        }
 
-function updateNotificationUi() {
-    notifyButton.classList.remove("is-on");
+        function getAttendanceUrlByNumber(classNumber) {
+            return baseUrl + encodeURIComponent(classNumber);
+        }
 
-    if (!canUseNotifications()) {
-        notifyStatus.textContent = "このブラウザは通知に対応していません。";
-        notifyButton.textContent = "利用できません";
-        notifyButton.disabled = true;
-        testNotifyButton.disabled = true;
-        return;
-    }
+        function openExternal(url) {
+            const newWindow = window.open(url, "_blank", "noopener,noreferrer");
+            if (newWindow) {
+                newWindow.opener = null;
+            }
+        }
 
-    notifyButton.disabled = false;
+        function openAttendanceByNumber(classNumber) {
+            openExternal(getAttendanceUrlByNumber(classNumber));
+        }
 
-    if (Notification.permission === "granted") {
-        notifyStatus.textContent = "受付開始と授業の5分前にお知らせします。";
-        notifyButton.textContent = "通知オン";
-        notifyButton.classList.add("is-on");
-        testNotifyButton.disabled = false;
-        return;
-    }
+        function saveManualClassNumber(classNumber) {
+            localStorage.setItem(manualClassNumberKey, classNumber);
+        }
 
-    if (Notification.permission === "denied") {
-        notifyStatus.textContent = "ブラウザの設定で通知がブロックされています。";
-        notifyButton.textContent = "ブロック中";
-        notifyButton.disabled = true;
-        testNotifyButton.disabled = true;
-        return;
-    }
+        function loadManualClassNumber() {
+            const saved = localStorage.getItem(manualClassNumberKey);
 
-    notifyStatus.textContent = "授業を忘れないよう、開始前にお知らせします。";
-    notifyButton.textContent = "通知をオン";
-    testNotifyButton.disabled = true;
-}
+            if (saved) {
+                classNumberInput.value = saved;
+                manualStatus.textContent = "前回の番号 " + saved + " を入力済みです。";
+            }
+        }
 
-async function requestNotifications() {
-    if (!canUseNotifications()) {
-        updateNotificationUi();
-        return;
-    }
+        function handleManualClassSubmit(event) {
+            event.preventDefault();
+            const classNumber = normalizeClassNumber(classNumberInput.value);
 
-    if (Notification.permission === "default") {
-        await Notification.requestPermission();
-    }
-
-    updateNotificationUi();
-    checkAttendanceNotifications(true);
-}
-
-function buildNotificationItems(classItem, currentMinutes, todayKey) {
-    const start = timeToMinutes(classItem.start);
-    const openTime = start - notificationLeadMinutes;
-    const warningTime = start - warningMinutesBeforeStart;
-    const classKey = `${todayKey}-${classItem.room}-${classItem.start}`;
-    const items = [];
-
-    if (currentMinutes >= openTime && currentMinutes < start) {
-        items.push({
-            key: `${classKey}-open`,
-            title: "出席受付が始まりました",
-            body: `${classItem.subject} / ${classItem.room} / ${classItem.start}開始`
-        });
-    }
-
-    if (currentMinutes >= warningTime && currentMinutes < start) {
-        items.push({
-            key: `${classKey}-before-start`,
-            title: "授業開始5分前です",
-            body: `${classItem.subject}の出席を忘れずに`
-        });
-    }
-
-    return items;
-}
-
-function checkAttendanceNotifications(force = false) {
-    if (!areNotificationsOn()) {
-        return;
-    }
-
-    const now = new Date();
-    const currentMinutes = now.getHours() * 60 + now.getMinutes();
-    const todayClasses = timetable[now.getDay()] || [];
-    const todayKey = getTodayKey(now);
-
-    todayClasses.forEach(classItem => {
-        buildNotificationItems(classItem, currentMinutes, todayKey).forEach(item => {
-            if (!force && wasNotificationSent(item.key)) {
+            if (!classNumber) {
+                manualStatus.textContent = "クラス番号を入力してください。";
+                manualStatus.classList.add("is-error");
+                classNumberInput.focus();
                 return;
             }
 
-            showNotification(item.title, item.body, classItem, item.key);
-            setNotificationSent(item.key);
-        });
-    });
-}
+            if (!/^[0-9A-Za-z-]{3,10}$/.test(classNumber)) {
+                manualStatus.textContent = "クラス番号を3〜10文字の半角英数字で入力してください。";
+                manualStatus.classList.add("is-error");
+                classNumberInput.focus();
+                return;
+            }
 
-function renderSchedule() {
-    const now = new Date();
-    const currentMinutes = now.getHours() * 60 + now.getMinutes();
-    const container = document.getElementById("schedule");
-    const todayClasses = timetable[now.getDay()];
+            manualStatus.classList.remove("is-error");
+            classNumberInput.value = classNumber;
+            saveManualClassNumber(classNumber);
+            manualStatus.textContent = "クラス番号 " + classNumber + " のページを開きます。";
+            openAttendanceByNumber(classNumber);
+        }
 
-    container.replaceChildren();
+        function getClassState(classItem, currentMinutes) {
+            const start = timeToMinutes(classItem.start);
+            const end = timeToMinutes(classItem.end);
+            const openTime = start - notificationLeadMinutes;
 
-    if (!todayClasses || todayClasses.length === 0) {
-        const empty = document.createElement("div");
-        empty.className = "empty-state";
-        empty.innerHTML = '<span class="empty-icon" aria-hidden="true">🏖️</span>今日は授業がありません。<br><small>ゆっくりリフレッシュしましょう。</small>';
-        container.appendChild(empty);
-        return;
-    }
+            if (currentMinutes >= start && currentMinutes <= end) {
+                return {
+                    type: "current",
+                    label: "授業中",
+                    status: "終了まで " + minutesText(end - currentMinutes),
+                    buttonText: "出席する",
+                    disabled: false,
+                    progress: ((currentMinutes - start) / (end - start)) * 100
+                };
+            }
 
-    todayClasses.forEach(classItem => {
-        const state = getClassState(classItem, currentMinutes);
-        const card = document.createElement("article");
-        const startParts = classItem.start.split(":");
-        const endParts = classItem.end.split(":");
+            if (currentMinutes >= openTime && currentMinutes < start) {
+                return {
+                    type: "ready",
+                    label: "受付中",
+                    status: "授業開始まで " + minutesText(start - currentMinutes),
+                    buttonText: "出席する",
+                    disabled: false,
+                    progress: ((currentMinutes - openTime) / notificationLeadMinutes) * 100
+                };
+            }
 
-        card.className = "class-card " + state.type;
-        card.innerHTML = `
+            if (currentMinutes < openTime) {
+                return {
+                    type: "next",
+                    label: "受付前",
+                    status: "受付開始まで " + minutesText(openTime - currentMinutes),
+                    buttonText: "受付前",
+                    disabled: true,
+                    progress: 0
+                };
+            }
+
+            return {
+                type: "ended",
+                label: "終了",
+                status: "この授業は終了しました",
+                buttonText: "受付終了",
+                disabled: true,
+                progress: 100
+            };
+        }
+
+        function getTodayKey(date = new Date()) {
+            return date.toLocaleDateString("ja-JP", {
+                year: "numeric",
+                month: "2-digit",
+                day: "2-digit"
+            });
+        }
+
+        function getNotificationStore() {
+            try {
+                return JSON.parse(localStorage.getItem(notificationKey)) || {};
+            } catch {
+                return {};
+            }
+        }
+
+        function setNotificationSent(key) {
+            const store = getNotificationStore();
+            store[key] = true;
+            localStorage.setItem(notificationKey, JSON.stringify(store));
+        }
+
+        function wasNotificationSent(key) {
+            return getNotificationStore()[key] === true;
+        }
+
+        function canUseNotifications() {
+            return "Notification" in window;
+        }
+
+        function areNotificationsOn() {
+            return canUseNotifications() && Notification.permission === "granted";
+        }
+
+        function showNotification(title, body, classItem, tag) {
+            if (!areNotificationsOn()) {
+                return;
+            }
+
+            const notification = new Notification(title, {
+                body,
+                tag,
+                renotify: true,
+                requireInteraction: true
+            });
+
+            notification.onclick = () => {
+                window.focus();
+                openAttendanceByNumber(classItem.room);
+                notification.close();
+            };
+        }
+
+        function updateNotificationUi() {
+            notifyButton.classList.remove("is-on");
+
+            if (!canUseNotifications()) {
+                notifyStatus.textContent = "このブラウザは通知に対応していません。";
+                notifyButton.textContent = "利用できません";
+                notifyButton.disabled = true;
+                testNotifyButton.disabled = true;
+                return;
+            }
+
+            notifyButton.disabled = false;
+
+            if (Notification.permission === "granted") {
+                notifyStatus.textContent = "受付開始と授業の5分前にお知らせします。";
+                notifyButton.textContent = "通知オン";
+                notifyButton.classList.add("is-on");
+                testNotifyButton.disabled = false;
+                return;
+            }
+
+            if (Notification.permission === "denied") {
+                notifyStatus.textContent = "ブラウザの設定で通知がブロックされています。";
+                notifyButton.textContent = "ブロック中";
+                notifyButton.disabled = true;
+                testNotifyButton.disabled = true;
+                return;
+            }
+
+            notifyStatus.textContent = "授業を忘れないよう、開始前にお知らせします。";
+            notifyButton.textContent = "通知をオン";
+            testNotifyButton.disabled = true;
+        }
+
+        async function requestNotifications() {
+            if (!canUseNotifications()) {
+                updateNotificationUi();
+                return;
+            }
+
+            if (Notification.permission === "default") {
+                await Notification.requestPermission();
+            }
+
+            updateNotificationUi();
+            checkAttendanceNotifications(true);
+        }
+
+        function buildNotificationItems(classItem, currentMinutes, todayKey) {
+            const start = timeToMinutes(classItem.start);
+            const openTime = start - notificationLeadMinutes;
+            const warningTime = start - warningMinutesBeforeStart;
+            const classKey = `${todayKey}-${classItem.room}-${classItem.start}`;
+            const items = [];
+
+            if (currentMinutes >= openTime && currentMinutes < start) {
+                items.push({
+                    key: `${classKey}-open`,
+                    title: "出席受付が始まりました",
+                    body: `${classItem.subject} / ${classItem.room} / ${classItem.start}開始`
+                });
+            }
+
+            if (currentMinutes >= warningTime && currentMinutes < start) {
+                items.push({
+                    key: `${classKey}-before-start`,
+                    title: "授業開始5分前です",
+                    body: `${classItem.subject}の出席を忘れずに`
+                });
+            }
+
+            return items;
+        }
+
+        function checkAttendanceNotifications(force = false) {
+            if (!areNotificationsOn()) {
+                return;
+            }
+
+            const now = new Date();
+            const currentMinutes = now.getHours() * 60 + now.getMinutes();
+            const todayClasses = timetable[now.getDay()] || [];
+            const todayKey = getTodayKey(now);
+
+            todayClasses.forEach(classItem => {
+                buildNotificationItems(classItem, currentMinutes, todayKey).forEach(item => {
+                    if (!force && wasNotificationSent(item.key)) {
+                        return;
+                    }
+
+                    showNotification(item.title, item.body, classItem, item.key);
+                    setNotificationSent(item.key);
+                });
+            });
+        }
+
+        function renderSchedule() {
+            const now = new Date();
+            const currentMinutes = now.getHours() * 60 + now.getMinutes();
+            const container = document.getElementById("schedule");
+            const todayClasses = timetable[now.getDay()];
+
+            container.replaceChildren();
+
+            if (!todayClasses || todayClasses.length === 0) {
+                const empty = document.createElement("div");
+                empty.className = "empty-state";
+                empty.innerHTML = '<span class="empty-icon" aria-hidden="true">🏖️</span>今日は授業がありません。<br><small>ゆっくりリフレッシュしましょう。</small>';
+                container.appendChild(empty);
+                return;
+            }
+
+            todayClasses.forEach(classItem => {
+                const state = getClassState(classItem, currentMinutes);
+                const card = document.createElement("article");
+                const startParts = classItem.start.split(":");
+                const endParts = classItem.end.split(":");
+
+                card.className = "class-card " + state.type;
+                card.innerHTML = `
             <div class="class-time">
                 ${startParts[0]}:${startParts[1]}
                 <small>〜 ${endParts[0]}:${endParts[1]}</small>
@@ -1401,44 +1395,45 @@ function renderSchedule() {
             </div>
         `;
 
-        const button = card.querySelector(".class-button");
-        if (!state.disabled) {
-            button.addEventListener("click", () => openAttendanceByNumber(classItem.room));
+                const button = card.querySelector(".class-button");
+                if (!state.disabled) {
+                    button.addEventListener("click", () => openAttendanceByNumber(classItem.room));
+                }
+
+                container.appendChild(card);
+            });
         }
 
-        container.appendChild(card);
-    });
-}
+        function update() {
+            updateClock();
+            updateNotificationUi();
+            renderSchedule();
+            checkAttendanceNotifications();
+        }
 
-function update() {
-    updateClock();
-    updateNotificationUi();
-    renderSchedule();
-    checkAttendanceNotifications();
-}
+        manualClassForm.addEventListener("submit", handleManualClassSubmit);
+        classNumberInput.addEventListener("input", () => {
+            manualStatus.classList.remove("is-error");
+        });
+        notifyButton.addEventListener("click", requestNotifications);
+        testNotifyButton.addEventListener("click", () => {
+            const classItem = {
+                subject: "テスト通知",
+                room: normalizeClassNumber(classNumberInput.value) || "5103"
+            };
 
-manualClassForm.addEventListener("submit", handleManualClassSubmit);
-classNumberInput.addEventListener("input", () => {
-    manualStatus.classList.remove("is-error");
-});
-notifyButton.addEventListener("click", requestNotifications);
-testNotifyButton.addEventListener("click", () => {
-    const classItem = {
-        subject: "テスト通知",
-        room: normalizeClassNumber(classNumberInput.value) || "5103"
-    };
+            showNotification(
+                "出席通知テスト",
+                "通知を押すと出席ページを開きます。",
+                classItem,
+                "cit-attendance-test"
+            );
+        });
 
-    showNotification(
-        "出席通知テスト",
-        "通知を押すと出席ページを開きます。",
-        classItem,
-        "cit-attendance-test"
-    );
-});
-
-loadManualClassNumber();
-update();
-setInterval(update, 1000);
-</script>
+        loadManualClassNumber();
+        update();
+        setInterval(update, 1000);
+    </script>
 </body>
+
 </html>
