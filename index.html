@@ -1,882 +1,1016 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ja">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<meta name="theme-color" content="#0478ff" />
-<meta name="application-name" content="出席アプリ" />
-<meta name="apple-mobile-web-app-title" content="出席アプリ" />
-<meta name="apple-mobile-web-app-capable" content="yes" />
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-<link rel="manifest" href="manifest.webmanifest" />
-<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png" />
-<link rel="icon" type="image/png" sizes="512x512" href="icon-512.png" />
-<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png" />
-<title>千葉工業大学 出席管理</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#58c9ed">
+<meta name="color-scheme" content="light">
+<meta name="description" content="夏の海をテーマにした出席ナビ">
+<title>出席ナビ｜Summer Campus</title>
 
 <style>
-:root{
-    --bg:#041523;
-    --text:#f2fbff;
-    --muted:#a8cad9;
-    --blue:#0478ff;
-    --green:#18d3a2;
-    --amber:#f4ba5f;
-    --red:#ff6d7a;
-    --line:rgba(198,234,255,0.34);
-    --glass:rgba(12,49,77,0.52);
-    --glass-strong:rgba(14,58,90,0.68);
-    --shadow:0 24px 60px rgba(0,8,24,0.34);
+:root {
+    --ink: #123b4a;
+    --ink-soft: #537380;
+    --white: #ffffff;
+    --sky: #dff8ff;
+    --aqua: #39bdd6;
+    --aqua-dark: #087e9f;
+    --navy: #075a78;
+    --mint: #26c6a1;
+    --coral: #ff766d;
+    --sun: #ffd56a;
+    --sand: #fff5d9;
+    --line: rgba(13, 105, 132, .13);
+    --shadow: 0 22px 60px rgba(11, 104, 130, .14);
+    --shadow-small: 0 10px 28px rgba(11, 104, 130, .11);
+    --radius-xl: 30px;
+    --radius-lg: 22px;
+    --radius-md: 16px;
 }
 
-*{
-    box-sizing:border-box;
+* {
+    box-sizing: border-box;
 }
 
-body{
-    position:relative;
-    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif;
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    min-width: 320px;
+    min-height: 100vh;
+    margin: 0;
+    color: var(--ink);
+    font-family: "Hiragino Sans", "Yu Gothic UI", "Yu Gothic", system-ui, sans-serif;
     background:
-        radial-gradient(circle at 50% -20%,rgba(188,239,255,0.62),rgba(63,176,220,0.26) 24%,transparent 48%),
-        radial-gradient(circle at 14% 22%,rgba(36,189,225,0.28),transparent 32%),
-        radial-gradient(circle at 86% 36%,rgba(0,88,150,0.38),transparent 34%),
-        linear-gradient(180deg,#0d4568 0%,#082b48 44%,#031320 100%);
-    color:var(--text);
-    margin:0;
-    min-height:100vh;
-    overflow-x:hidden;
+        radial-gradient(circle at 85% 7%, rgba(255, 223, 130, .56) 0 6%, transparent 6.2%),
+        linear-gradient(180deg, #c9f3ff 0, #effcff 27rem, #fffaf0 27rem, #fffdf7 100%);
 }
 
-body::before,
-body::after{
-    content:"";
-    position:fixed;
-    inset:0;
-    pointer-events:none;
+button,
+input {
+    font: inherit;
 }
 
-body::before{
-    z-index:0;
+button,
+a {
+    -webkit-tap-highlight-color: transparent;
+}
+
+button {
+    border: 0;
+}
+
+.visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+button:not(:disabled) {
+    cursor: pointer;
+}
+
+.page-shell {
+    position: relative;
+    width: min(100% - 32px, 960px);
+    margin: 0 auto;
+    padding: 22px 0 56px;
+}
+
+.hero {
+    position: relative;
+    min-height: 292px;
+    margin-bottom: 20px;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, .8);
+    border-radius: var(--radius-xl);
+    color: var(--white);
     background:
-        linear-gradient(105deg,transparent 0 22%,rgba(188,238,255,0.16) 24%,transparent 35%),
-        linear-gradient(78deg,transparent 0 55%,rgba(125,217,255,0.12) 58%,transparent 72%),
-        repeating-radial-gradient(circle at 50% 0%,rgba(255,255,255,0.08) 0 1px,transparent 2px 16px);
-    mix-blend-mode:screen;
-    opacity:0.75;
+        linear-gradient(160deg, rgba(34, 183, 219, .2), transparent 45%),
+        linear-gradient(135deg, #50c7e5 0%, #1b9fc7 58%, #087b9d 100%);
+    box-shadow: var(--shadow);
+    isolation: isolate;
 }
 
-body::after{
-    z-index:0;
+.hero::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -2;
+    opacity: .58;
     background:
-        radial-gradient(ellipse at 18% 112%,rgba(35,88,95,0.56),transparent 38%),
-        radial-gradient(ellipse at 72% 110%,rgba(10,74,86,0.54),transparent 38%),
-        linear-gradient(180deg,transparent 68%,rgba(0,8,14,0.46));
+        radial-gradient(circle at 14% 30%, rgba(255, 255, 255, .23) 0 2px, transparent 3px),
+        radial-gradient(circle at 32% 16%, rgba(255, 255, 255, .15) 0 1px, transparent 2px);
+    background-size: 48px 48px, 34px 34px;
 }
 
-.app{
-    position:relative;
-    z-index:1;
-    max-width:860px;
-    margin:0 auto;
-    padding:18px;
+.hero-copy {
+    position: relative;
+    z-index: 3;
+    width: min(58%, 520px);
+    padding: 38px 38px 34px;
 }
 
-.hero{
-    position:relative;
-    min-height:300px;
-    border:1px solid rgba(206,242,255,0.34);
-    border-radius:22px;
-    overflow:hidden;
-    margin-bottom:18px;
-    background:
-        linear-gradient(180deg,rgba(183,235,255,0.16),rgba(9,39,64,0.66)),
-        radial-gradient(circle at 54% -16%,rgba(255,255,255,0.42),transparent 36%),
-        radial-gradient(circle at 78% 58%,rgba(19,141,203,0.28),transparent 34%),
-        linear-gradient(135deg,rgba(9,61,94,0.86),rgba(2,18,31,0.86));
+.eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0 0 16px;
+    padding: 7px 12px;
+    border: 1px solid rgba(255, 255, 255, .44);
+    border-radius: 999px;
+    background: rgba(255, 255, 255, .15);
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    backdrop-filter: blur(8px);
+}
+
+.eyebrow::before {
+    content: "";
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--sun);
+    box-shadow: 0 0 0 4px rgba(255, 213, 106, .2);
+}
+
+h1 {
+    margin: 0;
+    font-size: clamp(34px, 6vw, 54px);
+    line-height: 1.05;
+    letter-spacing: -.04em;
+}
+
+.hero-lead {
+    margin: 12px 0 16px;
+    color: rgba(255, 255, 255, .82);
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.clock-row {
+    position: relative;
+    z-index: 4;
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    width: fit-content;
+    padding: 7px 11px;
+    border: 1px solid rgba(255, 255, 255, .16);
+    border-radius: 15px;
+    background: rgba(4, 91, 126, .2);
+    backdrop-filter: blur(6px);
+    transform: translateY(-3px);
+}
+
+#clock {
+    font-size: clamp(28px, 4vw, 38px);
+    font-weight: 800;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -.03em;
+}
+
+#today {
+    color: rgba(255, 255, 255, .82);
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.sun {
+    position: absolute;
+    top: 30px;
+    right: 42px;
+    width: 78px;
+    height: 78px;
+    border-radius: 50%;
+    background: #ffe39a;
     box-shadow:
-        var(--shadow),
-        inset 0 1px 0 rgba(255,255,255,0.42),
-        inset 0 -40px 90px rgba(0,9,22,0.28);
-    backdrop-filter:blur(18px) saturate(130%);
+        0 0 0 14px rgba(255, 227, 154, .12),
+        0 0 55px rgba(255, 224, 135, .52);
 }
 
-.hero::before{
-    content:"";
-    position:absolute;
-    inset:0;
+.cloud {
+    position: absolute;
+    top: 77px;
+    right: 174px;
+    width: 80px;
+    height: 20px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, .64);
+    filter: blur(.2px);
+}
+
+.cloud::before,
+.cloud::after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    border-radius: 50%;
+    background: inherit;
+}
+
+.cloud::before {
+    left: 13px;
+    width: 32px;
+    height: 32px;
+}
+
+.cloud::after {
+    right: 13px;
+    width: 42px;
+    height: 42px;
+}
+
+.island {
+    position: absolute;
+    right: 58px;
+    bottom: 62px;
+    z-index: 1;
+    width: 208px;
+    height: 36px;
+    border-radius: 52% 48% 46% 54%;
+    background: linear-gradient(180deg, #ffeab7, #e7bd70);
+    transform: rotate(-2deg);
+    box-shadow: 0 13px 28px rgba(5, 89, 113, .2);
+}
+
+.palm {
+    position: absolute;
+    right: 145px;
+    bottom: 87px;
+    z-index: 2;
+    width: 12px;
+    height: 112px;
+    border-radius: 999px;
+    background: linear-gradient(90deg, #8e6238, #ce9b5c 50%, #85552d);
+    transform: rotate(8deg);
+    transform-origin: bottom;
+}
+
+.palm::before {
+    content: "";
+    position: absolute;
+    top: -18px;
+    left: -48px;
+    width: 108px;
+    height: 68px;
+    background: #24a77d;
+    clip-path: polygon(52% 44%, 4% 11%, 42% 48%, 18% 66%, 47% 51%, 42% 99%, 55% 53%, 88% 91%, 62% 49%, 100% 35%, 60% 42%, 79% 0);
+    filter: drop-shadow(0 6px 5px rgba(4, 91, 76, .16));
+}
+
+.ball {
+    position: absolute;
+    right: 236px;
+    bottom: 68px;
+    z-index: 3;
+    width: 34px;
+    height: 34px;
+    border: 2px solid rgba(255, 255, 255, .88);
+    border-radius: 50%;
+    background: conic-gradient(var(--coral) 0 25%, #fff 25% 50%, var(--sun) 50% 75%, #fff 75%);
+    transform: rotate(18deg);
+}
+
+.waves {
+    position: absolute;
+    inset: auto -4% -1px;
+    z-index: 2;
+    height: 76px;
     background:
-        linear-gradient(120deg,rgba(255,255,255,0.28),transparent 24%),
-        repeating-linear-gradient(172deg,rgba(166,231,255,0.1) 0 1px,transparent 1px 18px);
-    opacity:0.62;
-    pointer-events:none;
+        radial-gradient(68px 23px at 50% 0, transparent 48%, rgba(255, 255, 255, .74) 51% 57%, transparent 60%) 0 7px / 130px 42px repeat-x,
+        linear-gradient(180deg, rgba(112, 220, 233, .82), rgba(12, 135, 173, .68));
 }
 
-.hero::after{
-    content:"";
-    position:absolute;
-    inset:auto 0 0;
-    height:96px;
-    background:linear-gradient(180deg,transparent,rgba(4,21,35,0.56));
-    pointer-events:none;
+.content-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.55fr) minmax(260px, .75fr);
+    gap: 20px;
+    align-items: start;
 }
 
-.header{
-    position:relative;
-    z-index:2;
-    max-width:430px;
-    padding:30px;
-    color:white;
-    text-shadow:0 2px 18px rgba(0,10,22,0.46);
+.stack {
+    display: grid;
+    gap: 20px;
 }
 
-h1{
-    margin:0 0 12px;
-    font-size:32px;
+.panel {
+    position: relative;
+    overflow: hidden;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-lg);
+    background: rgba(255, 255, 255, .88);
+    box-shadow: var(--shadow-small);
+    backdrop-filter: blur(16px);
 }
 
-#clock{
-    font-size:28px;
-    font-weight:800;
+.panel::after {
+    content: "";
+    position: absolute;
+    inset: 0 0 auto;
+    height: 3px;
+    background: linear-gradient(90deg, var(--aqua), var(--mint), var(--sun));
 }
 
-#today{
-    color:#c9eaff;
-    margin-top:8px;
-    font-size:15px;
+.quick-panel {
+    padding: 26px;
 }
 
-.ocean-layer{
-    position:absolute;
-    inset:0;
-    z-index:1;
-    pointer-events:none;
+.panel-heading {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 14px;
+    margin-bottom: 20px;
 }
 
-.surface-glow{
-    position:absolute;
-    inset:-80px 16% auto;
-    height:120px;
-    border-radius:50%;
-    background:radial-gradient(ellipse,rgba(255,255,255,0.62),rgba(123,218,255,0.24) 42%,transparent 70%);
-    filter:blur(4px);
+.section-kicker {
+    margin: 0 0 5px;
+    color: var(--aqua-dark);
+    font-size: 11px;
+    font-weight: 900;
+    letter-spacing: .12em;
+    text-transform: uppercase;
 }
 
-.surface-wave{
-    position:absolute;
-    inset:-10px -8px auto;
-    height:64px;
-    background:
-        radial-gradient(ellipse at 12% 100%,rgba(232,250,255,0.3),transparent 48%),
-        radial-gradient(ellipse at 38% 100%,rgba(232,250,255,0.22),transparent 46%),
-        radial-gradient(ellipse at 68% 100%,rgba(232,250,255,0.24),transparent 48%),
-        radial-gradient(ellipse at 92% 100%,rgba(232,250,255,0.2),transparent 46%);
-    opacity:0.8;
-    filter:blur(1px);
+h2 {
+    margin: 0;
+    font-size: 22px;
+    letter-spacing: -.02em;
 }
 
-.ray{
-    position:absolute;
-    top:-44px;
-    width:120px;
-    height:360px;
-    border-radius:50%;
-    background:linear-gradient(180deg,rgba(208,244,255,0.26),rgba(208,244,255,0));
-    filter:blur(5px);
-    transform-origin:top;
+.number-chip {
+    flex: 0 0 auto;
+    display: grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    border-radius: 14px;
+    color: var(--aqua-dark);
+    background: #e5fafd;
 }
 
-.ray-one{ left:48%; transform:rotate(13deg); }
-.ray-two{ left:68%; transform:rotate(25deg); opacity:0.64; }
-.ray-three{ left:27%; transform:rotate(-17deg); opacity:0.52; }
-
-.current-line{
-    position:absolute;
-    width:240px;
-    height:1px;
-    background:linear-gradient(90deg,transparent,rgba(187,234,255,0.44),transparent);
-    opacity:0.68;
-    animation:drift 7s ease-in-out infinite;
+.number-chip svg,
+.icon-button svg,
+.button-icon {
+    width: 22px;
+    height: 22px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
 }
 
-.line-one{ right:42px; top:104px; }
-.line-two{ right:164px; bottom:78px; width:310px; animation-delay:1.7s; }
-.line-three{ left:78px; bottom:126px; width:190px; animation-delay:3s; }
-
-.fish-school{
-    position:absolute;
-    right:72px;
-    top:168px;
-    width:190px;
-    height:72px;
-    opacity:0.5;
-    animation:schoolDrift 10s ease-in-out infinite;
+.quick-form {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 10px;
 }
 
-.mini-fish{
-    position:absolute;
-    width:18px;
-    height:8px;
-    border-radius:60% 45% 45% 60%;
-    background:rgba(190,234,246,0.5);
-    box-shadow:0 0 12px rgba(190,234,246,0.28);
+.input-wrap {
+    position: relative;
 }
 
-.mini-fish::after{
-    content:"";
-    position:absolute;
-    right:-6px;
-    top:1px;
-    border-left:7px solid rgba(190,234,246,0.5);
-    border-top:3px solid transparent;
-    border-bottom:3px solid transparent;
+.input-wrap input {
+    width: 100%;
+    min-height: 54px;
+    padding: 0 48px 0 16px;
+    border: 1.5px solid #cde8ee;
+    border-radius: 14px;
+    outline: 0;
+    color: var(--ink);
+    background: #f8fdfe;
+    font-size: 17px;
+    font-weight: 800;
+    font-variant-numeric: tabular-nums;
+    transition: border-color .2s, box-shadow .2s, background .2s;
 }
 
-.mini-fish:nth-child(1){ left:0; top:10px; transform:scale(0.86); }
-.mini-fish:nth-child(2){ left:42px; top:28px; transform:scale(0.68); opacity:0.72; }
-.mini-fish:nth-child(3){ left:86px; top:4px; transform:scale(0.74); opacity:0.66; }
-.mini-fish:nth-child(4){ left:128px; top:36px; transform:scale(0.58); opacity:0.56; }
-.mini-fish:nth-child(5){ left:156px; top:14px; transform:scale(0.64); opacity:0.62; }
-
-.seafloor{
-    position:absolute;
-    inset:auto -8% -34px;
-    height:88px;
-    background:
-        radial-gradient(ellipse at 22% 70%,rgba(37,118,114,0.55),transparent 48%),
-        radial-gradient(ellipse at 72% 84%,rgba(16,81,91,0.72),transparent 54%),
-        linear-gradient(180deg,transparent,rgba(1,12,19,0.76));
-    filter:blur(1px);
+.input-wrap input::placeholder {
+    color: #9bb2ba;
+    font-weight: 600;
 }
 
-.reef{
-    position:absolute;
-    bottom:0;
-    width:160px;
-    height:92px;
-    opacity:0.54;
+.input-wrap input:focus {
+    border-color: var(--aqua);
+    background: #fff;
+    box-shadow: 0 0 0 4px rgba(57, 189, 214, .13);
 }
 
-.reef-left{ left:10px; }
-.reef-right{ right:8px; transform:scaleX(-1); opacity:0.42; }
-
-.coral{
-    position:absolute;
-    bottom:13px;
-    width:11px;
-    height:42px;
-    border-radius:999px 999px 4px 4px;
-    background:linear-gradient(180deg,rgba(255,143,142,0.62),rgba(121,44,75,0.26));
-    box-shadow:0 0 16px rgba(255,143,142,0.18);
-    transform-origin:bottom;
+.input-mark {
+    position: absolute;
+    top: 50%;
+    right: 15px;
+    color: #8cb0bb;
+    font-size: 12px;
+    font-weight: 900;
+    transform: translateY(-50%);
 }
 
-.coral::before,
-.coral::after{
-    content:"";
-    position:absolute;
-    bottom:18px;
-    width:8px;
-    height:24px;
-    border-radius:999px 999px 3px 3px;
-    background:inherit;
+.primary-button,
+.class-button {
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    gap: 9px;
+    min-height: 54px;
+    padding: 0 20px;
+    border-radius: 14px;
+    color: #fff;
+    background: linear-gradient(135deg, #13a9c8, #087e9f);
+    box-shadow: 0 9px 20px rgba(8, 126, 159, .2);
+    font-weight: 900;
+    transition: transform .18s, box-shadow .18s, filter .18s;
 }
 
-.coral::before{ left:-8px; transform:rotate(-34deg); }
-.coral::after{ right:-8px; transform:rotate(34deg); }
-.coral.one{ left:18px; height:42px; }
-.coral.two{ left:54px; height:58px; transform:rotate(-7deg); background:linear-gradient(180deg,rgba(94,225,196,0.58),rgba(26,94,98,0.25)); }
-.coral.three{ left:102px; height:36px; transform:rotate(8deg); background:linear-gradient(180deg,rgba(255,191,117,0.58),rgba(126,76,42,0.24)); }
-
-.seaweed{
-    position:absolute;
-    bottom:0;
-    width:92px;
-    height:92px;
-    opacity:0.56;
+.primary-button:hover,
+.class-button:not(:disabled):hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 25px rgba(8, 126, 159, .26);
+    filter: saturate(1.08);
 }
 
-.seaweed-left{ left:118px; }
-.seaweed-right{ right:128px; opacity:0.44; transform:scaleX(-1); }
-
-.seaweed span{
-    position:absolute;
-    bottom:5px;
-    width:9px;
-    border-radius:999px 999px 0 0;
-    background:linear-gradient(180deg,rgba(91,235,181,0.46),rgba(20,82,78,0.16));
-    transform-origin:bottom;
-    animation:sway 4.8s ease-in-out infinite;
+.primary-button:active,
+.class-button:not(:disabled):active {
+    transform: translateY(0);
 }
 
-.seaweed span:nth-child(1){ left:8px; height:74px; transform:rotate(-9deg); }
-.seaweed span:nth-child(2){ left:28px; height:58px; transform:rotate(5deg); animation-delay:0.5s; }
-.seaweed span:nth-child(3){ left:48px; height:84px; transform:rotate(11deg); animation-delay:1s; }
-.seaweed span:nth-child(4){ left:68px; height:52px; transform:rotate(-6deg); animation-delay:1.4s; }
-
-.bubble{
-    position:absolute;
-    border:1px solid rgba(207,245,255,0.72);
-    border-radius:50%;
-    background:radial-gradient(circle at 34% 30%,rgba(255,255,255,0.75),rgba(255,255,255,0.08) 28%,transparent 62%);
-    box-shadow:inset 0 0 10px rgba(215,246,255,0.2);
-    animation:rise 6s ease-in-out infinite;
+.primary-button:focus-visible,
+.class-button:focus-visible,
+.icon-button:focus-visible {
+    outline: 3px solid rgba(255, 118, 109, .38);
+    outline-offset: 3px;
 }
 
-.bubble.one{ right:76px; bottom:48px; width:14px; height:14px; }
-.bubble.two{ right:204px; bottom:84px; width:9px; height:9px; animation-delay:1.5s; }
-.bubble.three{ left:46%; bottom:70px; width:18px; height:18px; animation-delay:2.6s; }
-.bubble.four{ left:26%; bottom:42px; width:11px; height:11px; animation-delay:3.4s; }
-.bubble.five{ right:42%; bottom:34px; width:7px; height:7px; animation-delay:4.1s; }
-
-.sea-friend{
-    position:absolute;
-    display:grid;
-    place-items:center;
-    width:50px;
-    height:50px;
-    border:1px solid rgba(218,247,255,0.5);
-    border-radius:50%;
-    background:
-        radial-gradient(circle at 34% 26%,rgba(255,255,255,0.74),rgba(255,255,255,0.16) 32%,rgba(19,92,130,0.28) 70%),
-        rgba(255,255,255,0.12);
-    box-shadow:
-        0 12px 30px rgba(0,12,28,0.24),
-        inset 0 1px 0 rgba(255,255,255,0.52),
-        inset 0 -10px 18px rgba(2,28,46,0.24);
-    font-size:28px;
-    opacity:0.9;
-    text-shadow:0 2px 8px rgba(0,15,30,0.28);
-    animation:friendFloat 6s ease-in-out infinite;
+.form-note,
+.notify-description {
+    min-height: 20px;
+    margin: 10px 2px 0;
+    color: var(--ink-soft);
+    font-size: 12px;
+    font-weight: 650;
+    line-height: 1.55;
 }
 
-.sea-friend.dolphin{ right:58px; top:58px; }
-.sea-friend.jelly{ right:222px; top:128px; width:46px; height:46px; font-size:26px; animation-delay:0.9s; }
-.sea-friend.fish{ left:50%; bottom:52px; width:44px; height:44px; font-size:25px; animation-delay:1.6s; }
-.sea-friend.turtle{ left:54px; bottom:42px; width:48px; height:48px; font-size:26px; animation-delay:2.3s; }
-.sea-friend.penguin{ right:138px; bottom:38px; width:46px; height:46px; font-size:26px; animation-delay:3s; }
-
-.notify-panel,
-.manual-panel{
-    position:relative;
-    display:grid;
-    grid-template-columns:1fr auto;
-    align-items:center;
-    gap:12px;
-    background:var(--glass);
-    border:1px solid var(--line);
-    border-radius:12px;
-    padding:13px;
-    margin-bottom:14px;
-    box-shadow:
-        0 16px 36px rgba(0,10,25,0.22),
-        inset 0 1px 0 rgba(255,255,255,0.34);
-    overflow:hidden;
-    backdrop-filter:blur(18px) saturate(140%);
+.form-note.is-error {
+    color: #c34c48;
 }
 
-.manual-panel{
-    grid-template-columns:1fr;
+.schedule-panel {
+    padding: 26px;
 }
 
-.notify-panel::before,
-.manual-panel::before,
-.card::after{
-    content:"";
-    position:absolute;
-    inset:0;
-    background:linear-gradient(135deg,rgba(255,255,255,0.2),transparent 34%,rgba(255,255,255,0.06));
-    pointer-events:none;
+.schedule-heading {
+    margin-bottom: 16px;
 }
 
-.notify-title,
-.manual-title{
-    position:relative;
-    z-index:1;
-    font-weight:800;
+.schedule-date {
+    flex: 0 0 auto;
+    padding: 7px 11px;
+    border-radius: 999px;
+    color: var(--navy);
+    background: #edfafd;
+    font-size: 12px;
+    font-weight: 850;
 }
 
-.notify-status,
-.manual-status{
-    position:relative;
-    z-index:1;
-    color:var(--muted);
-    font-size:13px;
-    margin-top:3px;
+#schedule {
+    display: grid;
+    gap: 12px;
 }
 
-.notify-actions{
-    position:relative;
-    z-index:1;
-    display:flex;
-    gap:8px;
+.class-card {
+    position: relative;
+    display: grid;
+    grid-template-columns: 78px minmax(0, 1fr) auto;
+    gap: 16px;
+    align-items: center;
+    min-height: 114px;
+    padding: 17px;
+    overflow: hidden;
+    border: 1px solid #dceef1;
+    border-radius: 18px;
+    background: #fff;
 }
 
-.manual-form{
-    position:relative;
-    z-index:1;
-    display:grid;
-    grid-template-columns:minmax(0,1fr) auto;
-    gap:10px;
+.class-card::before {
+    content: "";
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: 5px;
+    background: #c3d8dd;
 }
 
-.manual-form input{
-    width:100%;
-    min-height:46px;
-    border:1px solid rgba(209,239,255,0.36);
-    border-radius:10px;
-    padding:0 13px;
-    color:var(--text);
-    background:rgba(2,22,36,0.32);
-    font:inherit;
-    font-size:16px;
-    font-weight:800;
-    outline:none;
-    box-shadow:inset 0 1px 0 rgba(255,255,255,0.12);
+.class-card.current {
+    border-color: rgba(38, 198, 161, .43);
+    background: linear-gradient(105deg, #f2fffb, #fff);
+    box-shadow: 0 12px 28px rgba(31, 170, 140, .1);
 }
 
-.manual-form input::placeholder{
-    color:rgba(204,232,244,0.56);
-    font-weight:600;
+.class-card.current::before {
+    background: var(--mint);
 }
 
-.manual-form input:focus{
-    border-color:rgba(120,202,255,0.86);
-    box-shadow:
-        0 0 0 3px rgba(4,120,255,0.18),
-        inset 0 1px 0 rgba(255,255,255,0.14);
+.class-card.ready {
+    border-color: rgba(57, 189, 214, .45);
+    background: linear-gradient(105deg, #f0fcff, #fff);
 }
 
-.manual-form button{
-    width:auto;
-    min-width:128px;
-    white-space:nowrap;
+.class-card.ready::before {
+    background: var(--aqua);
 }
 
-.icon-btn{
-    display:grid;
-    place-items:center;
-    width:44px;
-    height:44px;
-    padding:0;
-    border-radius:10px;
+.class-card.next::before {
+    background: var(--sun);
 }
 
-.icon{
-    width:22px;
-    height:22px;
-    stroke:currentColor;
-    stroke-width:2.4;
-    fill:none;
-    stroke-linecap:round;
-    stroke-linejoin:round;
+.class-card.ended {
+    opacity: .64;
+    background: #f8fbfb;
 }
 
-#schedule{
-    display:flex;
-    flex-direction:column;
-    gap:14px;
+.class-time {
+    padding-right: 15px;
+    border-right: 1px dashed #cde1e5;
+    text-align: center;
+    font-size: 18px;
+    font-weight: 900;
+    font-variant-numeric: tabular-nums;
 }
 
-.card{
-    position:relative;
-    background:var(--glass);
-    border:1px solid var(--line);
-    border-radius:14px;
-    padding:16px;
-    box-shadow:
-        0 18px 42px rgba(0,10,24,0.24),
-        inset 0 1px 0 rgba(255,255,255,0.28);
-    overflow:hidden;
-    backdrop-filter:blur(18px) saturate(145%);
+.class-time small {
+    display: block;
+    margin-top: 3px;
+    color: #8aa3ac;
+    font-size: 11px;
+    font-weight: 750;
 }
 
-.card::before{
-    content:"";
-    position:absolute;
-    inset:0 auto 0 0;
-    width:5px;
-    background:rgba(176,219,235,0.5);
-    box-shadow:0 0 18px rgba(176,219,235,0.24);
+.class-main {
+    min-width: 0;
 }
 
-.card.current{
-    padding:24px;
-    border-color:rgba(91,255,210,0.66);
-    background:rgba(11,68,85,0.66);
-    box-shadow:
-        0 24px 54px rgba(13,218,166,0.22),
-        inset 0 1px 0 rgba(255,255,255,0.36);
-    transform:scale(1.01);
+.class-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 7px;
+    align-items: center;
+    margin-bottom: 7px;
 }
 
-.card.current::before{ background:var(--green); box-shadow:0 0 22px rgba(24,211,162,0.62); }
-.card.ready{ border-color:rgba(105,189,255,0.66); background:rgba(13,59,98,0.64); }
-.card.ready::before{ background:var(--blue); box-shadow:0 0 22px rgba(4,120,255,0.62); }
-.card.next{ border-color:rgba(255,206,118,0.48); background:rgba(38,62,74,0.58); }
-.card.next::before{ background:var(--amber); box-shadow:0 0 18px rgba(244,186,95,0.46); }
-.card.ended{ opacity:0.72; box-shadow:inset 0 1px 0 rgba(255,255,255,0.14); }
-
-.top-row{
-    position:relative;
-    z-index:1;
-    display:flex;
-    justify-content:space-between;
-    align-items:flex-start;
-    gap:12px;
-    margin-bottom:10px;
+.state-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 4px 8px;
+    border-radius: 999px;
+    color: #607e87;
+    background: #edf3f4;
+    font-size: 10px;
+    font-weight: 900;
 }
 
-.label{
-    display:inline-flex;
-    align-items:center;
-    border:1px solid rgba(255,255,255,0.24);
-    border-radius:8px;
-    padding:5px 10px;
-    font-size:13px;
-    font-weight:800;
-    white-space:nowrap;
-    color:white;
-    background:rgba(105,129,148,0.62);
-    box-shadow:inset 0 1px 0 rgba(255,255,255,0.2);
+.state-label::before {
+    content: "";
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: currentColor;
 }
 
-.label.current{ background:rgba(24,211,162,0.86); }
-.label.ready{ background:rgba(4,120,255,0.86); }
-.label.next{ background:rgba(244,186,95,0.88); color:#112133; }
-.label.ended{ background:rgba(255,109,122,0.78); }
-
-.subject{
-    font-size:19px;
-    font-weight:800;
-    line-height:1.35;
-    margin-bottom:8px;
-    color:#f5fcff;
+.current .state-label {
+    color: #087f66;
+    background: #ddf9f1;
 }
 
-.card.current .subject{
-    font-size:27px;
+.ready .state-label {
+    color: #087e9f;
+    background: #ddf7fb;
 }
 
-.main-info{
-    position:relative;
-    z-index:1;
-    display:grid;
-    grid-template-columns:1fr 1fr;
-    gap:8px;
-    margin:12px 0;
+.next .state-label {
+    color: #967026;
+    background: #fff6d9;
 }
 
-.info-box{
-    background:rgba(2,22,36,0.24);
-    border:1px solid rgba(209,239,255,0.26);
-    border-radius:10px;
-    padding:11px;
-    box-shadow:inset 0 1px 0 rgba(255,255,255,0.12);
+.room-label {
+    color: #78929a;
+    font-size: 11px;
+    font-weight: 800;
 }
 
-.info-title{
-    color:var(--muted);
-    font-size:12px;
-    margin-bottom:5px;
+.class-subject {
+    overflow: hidden;
+    margin: 0;
+    font-size: 16px;
+    font-weight: 900;
+    line-height: 1.4;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
-.info-value{
-    color:#f2fbff;
-    font-size:17px;
-    font-weight:800;
+.class-status {
+    margin: 5px 0 0;
+    color: var(--ink-soft);
+    font-size: 11px;
+    font-weight: 650;
 }
 
-.card.current .info-value{
-    font-size:20px;
+.class-action {
+    width: 118px;
 }
 
-.status{
-    font-weight:800;
-    margin:10px 0;
-    font-size:15px;
+.class-button {
+    width: 100%;
+    min-height: 45px;
+    padding: 0 13px;
+    font-size: 12px;
 }
 
-.status.current{ color:#6dffd3; }
-.status.ready{ color:#78caff; }
-.status.next{ color:#ffd48a; }
-.status.ended{ color:#ff9ca5; }
-
-.progress{
-    position:relative;
-    z-index:1;
-    height:8px;
-    background:rgba(215,238,250,0.2);
-    border-radius:999px;
-    overflow:hidden;
-    margin:10px 0 14px;
-    display:none;
+.class-button:disabled {
+    color: #82989f;
+    background: #edf2f3;
+    box-shadow: none;
+    cursor: not-allowed;
 }
 
-.card.current .progress,
-.card.ready .progress{
-    display:block;
+.progress-track {
+    width: 100%;
+    height: 4px;
+    margin-top: 10px;
+    overflow: hidden;
+    border-radius: 999px;
+    background: #e5f0f2;
 }
 
-.progress-bar{
-    height:100%;
-    width:0%;
-    background:linear-gradient(90deg,#2dd4ff,#0478ff);
-    border-radius:999px;
-    box-shadow:0 0 14px rgba(45,212,255,0.62);
+.progress-bar {
+    width: 0;
+    height: 100%;
+    border-radius: inherit;
+    background: linear-gradient(90deg, var(--aqua), var(--mint));
 }
 
-button{
-    position:relative;
-    z-index:1;
-    width:100%;
-    padding:13px;
-    border:none;
-    border-radius:10px;
-    font-size:16px;
-    font-weight:800;
-    cursor:pointer;
+.empty-state {
+    padding: 34px 20px;
+    border: 1px dashed #bfdee4;
+    border-radius: 18px;
+    color: var(--ink-soft);
+    background: #f8fdfe;
+    text-align: center;
 }
 
-.active-btn{
-    background:linear-gradient(90deg,#13b889,#0478ff);
-    color:white;
-    box-shadow:0 12px 24px rgba(4,120,255,0.26);
+.empty-icon {
+    display: block;
+    margin-bottom: 9px;
+    font-size: 28px;
 }
 
-.ready-btn{
-    background:linear-gradient(90deg,#075bcc,#0478ff);
-    color:white;
-    box-shadow:0 12px 24px rgba(4,120,255,0.22);
+.notify-panel {
+    padding: 24px;
 }
 
-.disabled-btn{
-    background:rgba(220,237,246,0.18);
-    color:rgba(226,244,255,0.62);
-    cursor:not-allowed;
+.notify-visual {
+    display: grid;
+    place-items: center;
+    width: 54px;
+    height: 54px;
+    margin-bottom: 18px;
+    border-radius: 18px;
+    color: var(--coral);
+    background: #fff0ed;
 }
 
-.empty{
-    text-align:center;
-    color:var(--muted);
+.notify-visual svg {
+    width: 27px;
+    height: 27px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
 }
 
-@keyframes rise{
-    0%{ transform:translateY(0) translateX(0) scale(0.86); opacity:0.16; }
-    38%{ opacity:0.9; }
-    100%{ transform:translateY(-104px) translateX(-12px) scale(1.2); opacity:0; }
+.notify-title {
+    margin: 0 0 7px;
+    font-size: 18px;
 }
 
-@keyframes drift{
-    0%,100%{ transform:translateX(0); opacity:0.36; }
-    50%{ transform:translateX(-24px); opacity:0.82; }
+.notify-description {
+    min-height: 0;
+    margin: 0;
 }
 
-@keyframes schoolDrift{
-    0%,100%{ transform:translateX(0) translateY(0); }
-    50%{ transform:translateX(-34px) translateY(-10px); }
+.notify-actions {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 9px;
+    margin-top: 18px;
 }
 
-@keyframes sway{
-    0%,100%{ transform:rotate(-7deg); }
-    50%{ transform:rotate(8deg); }
+.notify-toggle {
+    min-height: 44px;
+    border: 1px solid #cde5ea;
+    border-radius: 13px;
+    color: var(--aqua-dark);
+    background: #effafd;
+    font-size: 12px;
+    font-weight: 900;
 }
 
-@keyframes friendFloat{
-    0%,100%{ transform:translateY(0) rotate(-3deg); }
-    50%{ transform:translateY(-12px) rotate(3deg); }
+.notify-toggle.is-on {
+    border-color: #bdebdc;
+    color: #087f66;
+    background: #e5faf3;
 }
 
-@media (max-width:620px){
-    .app{ padding:12px; }
-    .hero{ min-height:260px; border-radius:16px; }
-    .header{ padding:24px; }
-    h1{ font-size:27px; }
-    #clock{ font-size:24px; }
+.notify-toggle:disabled {
+    color: #82979d;
+    background: #edf1f2;
+    cursor: not-allowed;
+}
 
-    .ray{
-        height:310px;
-        width:84px;
+.icon-button {
+    display: grid;
+    place-items: center;
+    width: 44px;
+    min-height: 44px;
+    border: 1px solid #cde5ea;
+    border-radius: 13px;
+    color: var(--aqua-dark);
+    background: #fff;
+}
+
+.icon-button:disabled {
+    opacity: .43;
+    cursor: not-allowed;
+}
+
+.tip-panel {
+    padding: 22px;
+    color: #6e5923;
+    background: linear-gradient(145deg, #fff8df, #fffdf5);
+}
+
+.tip-panel::after {
+    background: var(--sun);
+}
+
+.tip-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0 0 8px;
+    font-size: 14px;
+}
+
+.tip-text {
+    margin: 0;
+    color: #887340;
+    font-size: 12px;
+    font-weight: 650;
+    line-height: 1.65;
+}
+
+.footer {
+    padding: 28px 0 0;
+    color: #73919b;
+    text-align: center;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+@media (max-width: 780px) {
+    .content-grid {
+        grid-template-columns: 1fr;
     }
 
-    .line-one{ right:22px; }
-    .line-two{ right:62px; width:230px; }
-    .line-three{ left:42px; }
+    .side-stack {
+        grid-template-columns: 1fr 1fr;
+    }
+}
 
-    .fish-school{
-        right:26px;
-        top:174px;
-        width:140px;
-        opacity:0.4;
+@media (max-width: 620px) {
+    body {
+        background: linear-gradient(180deg, #c9f3ff 0, #effcff 23rem, #fffaf0 23rem, #fffdf7 100%);
     }
 
-    .reef{
-        width:110px;
-        height:70px;
-        opacity:0.42;
+    .page-shell {
+        width: min(100% - 22px, 960px);
+        padding-top: 11px;
     }
 
-    .reef-right{
-        display:none;
+    .hero {
+        min-height: 250px;
+        border-radius: 24px;
     }
 
-    .seaweed{
-        width:76px;
-        height:72px;
-        opacity:0.42;
+    .hero-copy {
+        width: 76%;
+        padding: 28px 24px;
     }
 
-    .seaweed-left{ left:84px; }
-    .seaweed-right{ right:84px; }
-
-    .sea-friend{
-        width:42px;
-        height:42px;
-        font-size:24px;
+    .hero-lead {
+        max-width: 220px;
+        margin-bottom: 10px;
     }
 
-    .sea-friend.dolphin{ right:38px; top:48px; }
-    .sea-friend.jelly{ right:134px; top:128px; width:40px; height:40px; font-size:23px; }
-    .sea-friend.fish{ left:50%; bottom:48px; width:40px; height:40px; font-size:23px; }
-    .sea-friend.turtle{ left:28px; bottom:42px; width:40px; height:40px; font-size:23px; }
-    .sea-friend.penguin{ right:42px; bottom:42px; width:40px; height:40px; font-size:23px; }
-
-    .notify-panel,
-    .manual-form{
-        grid-template-columns:1fr;
+    .clock-row {
+        display: block;
     }
 
-    .notify-actions{
-        width:100%;
+    #today {
+        display: block;
+        margin-top: 4px;
     }
 
-    .icon-btn{
-        flex:1;
+    .sun {
+        top: 22px;
+        right: 22px;
+        width: 55px;
+        height: 55px;
     }
 
-    .manual-form button{
-        width:100%;
-        min-width:0;
+    .cloud {
+        display: none;
     }
 
-    .main-info{ grid-template-columns:1fr; }
-
-    .top-row{
-        flex-direction:column-reverse;
-        align-items:flex-start;
+    .island {
+        right: -22px;
+        bottom: 55px;
+        width: 172px;
     }
 
-    .card.current{
-        transform:none;
+    .palm {
+        right: 50px;
+        bottom: 77px;
+        height: 91px;
     }
 
-    .card.current .subject{
-        font-size:23px;
+    .ball {
+        right: 124px;
+        bottom: 60px;
+    }
+
+    .quick-panel,
+    .schedule-panel,
+    .notify-panel {
+        padding: 20px;
+    }
+
+    .quick-form {
+        grid-template-columns: 1fr;
+    }
+
+    .class-card {
+        grid-template-columns: 64px minmax(0, 1fr);
+        gap: 12px;
+    }
+
+    .class-time {
+        padding-right: 11px;
+        font-size: 16px;
+    }
+
+    .class-action {
+        grid-column: 1 / -1;
+        width: 100%;
+    }
+
+    .class-subject {
+        white-space: normal;
+    }
+
+    .side-stack {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    html {
+        scroll-behavior: auto;
+    }
+
+    *,
+    *::before,
+    *::after {
+        scroll-behavior: auto !important;
+        transition-duration: .01ms !important;
+        animation-duration: .01ms !important;
+        animation-iteration-count: 1 !important;
     }
 }
 </style>
 </head>
 
 <body>
-<main class="app">
-    <section class="hero">
-        <div class="ocean-layer" aria-hidden="true">
-            <div class="surface-glow"></div>
-            <div class="surface-wave"></div>
-            <div class="ray ray-one"></div>
-            <div class="ray ray-two"></div>
-            <div class="ray ray-three"></div>
-            <div class="current-line line-one"></div>
-            <div class="current-line line-two"></div>
-            <div class="current-line line-three"></div>
-            <div class="fish-school">
-                <span class="mini-fish"></span>
-                <span class="mini-fish"></span>
-                <span class="mini-fish"></span>
-                <span class="mini-fish"></span>
-                <span class="mini-fish"></span>
+<main class="page-shell">
+    <header class="hero">
+        <div class="hero-copy">
+            <p class="eyebrow">Summer Campus</p>
+            <h1>出席ナビ</h1>
+            <p class="hero-lead">今日の授業へ、迷わずスムーズに。</p>
+            <div class="clock-row">
+                <time id="clock" aria-label="現在時刻">--:--:--</time>
+                <time id="today" aria-label="今日の日付">----</time>
             </div>
-            <div class="sea-friend dolphin">🐬</div>
-            <div class="sea-friend jelly">🪼</div>
-            <div class="sea-friend fish">🐠</div>
-            <div class="sea-friend turtle">🐢</div>
-            <div class="sea-friend penguin">🐧</div>
-            <div class="bubble one"></div>
-            <div class="bubble two"></div>
-            <div class="bubble three"></div>
-            <div class="bubble four"></div>
-            <div class="bubble five"></div>
-            <div class="reef reef-left">
-                <span class="coral one"></span>
-                <span class="coral two"></span>
-                <span class="coral three"></span>
-            </div>
-            <div class="reef reef-right">
-                <span class="coral one"></span>
-                <span class="coral two"></span>
-                <span class="coral three"></span>
-            </div>
-            <div class="seaweed seaweed-left">
-                <span></span>
-                <span></span>
-                <span></span>
-                <span></span>
-            </div>
-            <div class="seaweed seaweed-right">
-                <span></span>
-                <span></span>
-                <span></span>
-                <span></span>
-            </div>
-            <div class="seafloor"></div>
+        </div>
+        <div class="sun" aria-hidden="true"></div>
+        <div class="cloud" aria-hidden="true"></div>
+        <div class="island" aria-hidden="true"></div>
+        <div class="palm" aria-hidden="true"></div>
+        <div class="ball" aria-hidden="true"></div>
+        <div class="waves" aria-hidden="true"></div>
+    </header>
+
+    <div class="content-grid">
+        <div class="stack">
+            <section class="panel quick-panel" aria-labelledby="quick-heading">
+                <div class="panel-heading">
+                    <div>
+                        <p class="section-kicker">Quick Access</p>
+                        <h2 id="quick-heading">クラス番号で出席</h2>
+                    </div>
+                    <div class="number-chip" aria-hidden="true">
+                        <svg viewBox="0 0 24 24">
+                            <path d="M8 3 6 21M18 3l-2 18M3 9h18M2 15h18"/>
+                        </svg>
+                    </div>
+                </div>
+                <form id="manualClassForm" class="quick-form" novalidate>
+                    <label class="input-wrap">
+                        <span class="visually-hidden"></span>
+                        <input
+                            id="classNumberInput"
+                            type="text"
+                            inputmode="numeric"
+                            autocomplete="off"
+                            maxlength="10"
+                            placeholder="例：5103"
+                            aria-label="クラス番号"
+                            aria-describedby="manualStatus"
+                        >
+                        <span class="input-mark" aria-hidden="true">NO.</span>
+                    </label>
+                    <button class="primary-button" type="submit">
+                        出席ページへ
+                        <svg class="button-icon" viewBox="0 0 24 24" aria-hidden="true">
+                            <path d="M5 12h14M13 6l6 6-6 6"/>
+                        </svg>
+                    </button>
+                </form>
+                <p id="manualStatus" class="form-note" role="status">番号を入力すると、出席ページを新しいタブで開きます。</p>
+            </section>
+
+            <section class="panel schedule-panel" aria-labelledby="schedule-heading">
+                <div class="panel-heading schedule-heading">
+                    <div>
+                        <p class="section-kicker">Today's Classes</p>
+                        <h2 id="schedule-heading">今日の授業</h2>
+                    </div>
+                    <span id="scheduleDate" class="schedule-date">-- / --</span>
+                </div>
+                <div id="schedule" aria-live="polite"></div>
+            </section>
         </div>
 
-        <section class="header">
-            <h1>出席システム</h1>
-            <div id="clock"></div>
-            <div id="today"></div>
-        </section>
-    </section>
+        <aside class="stack side-stack">
+            <section class="panel notify-panel" aria-labelledby="notify-heading">
+                <div class="notify-visual" aria-hidden="true">
+                    <svg viewBox="0 0 24 24">
+                        <path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"/>
+                        <path d="M10 21h4"/>
+                    </svg>
+                </div>
+                <h2 id="notify-heading" class="notify-title">出席リマインド</h2>
+                <p id="notifyStatus" class="notify-description">受付開始と授業の5分前にお知らせします。</p>
+                <div class="notify-actions">
+                    <button id="notifyButton" class="notify-toggle" type="button">通知をオン</button>
+                    <button id="testNotifyButton" class="icon-button" type="button" title="テスト通知" aria-label="テスト通知" disabled>
+                        <svg viewBox="0 0 24 24" aria-hidden="true">
+                            <path d="m8 5 11 7-11 7Z"/>
+                        </svg>
+                    </button>
+                </div>
+            </section>
 
-    <section class="manual-panel" aria-label="クラス番号入力">
-        <div>
-            <div class="manual-title">クラス番号で出席</div>
-            <div id="manualStatus" class="manual-status">番号を入力すると、その出席ページを開けます</div>
-        </div>
-        <form id="manualClassForm" class="manual-form">
-            <input
-                id="classNumberInput"
-                type="text"
-                inputmode="numeric"
-                autocomplete="off"
-                placeholder="例: 5103"
-                aria-label="クラス番号"
-            />
-            <button class="active-btn" type="submit">開く</button>
-        </form>
-    </section>
+            <section class="panel tip-panel" aria-labelledby="tip-heading">
+                <h2 id="tip-heading" class="tip-title"><span aria-hidden="true">☀️</span> 夏のひとこと</h2>
+                <p class="tip-text">暑い日は水分補給も忘れずに。少し早めの移動で、気持ちにも余裕を。</p>
+            </section>
+        </aside>
+    </div>
 
-    <section class="notify-panel" aria-label="通知設定">
-        <div>
-            <div class="notify-title">出席通知</div>
-            <div id="notifyStatus" class="notify-status"></div>
-        </div>
-        <div class="notify-actions">
-            <button id="notifyButton" class="icon-btn ready-btn" type="button" title="通知をオン" aria-label="通知をオン">
-                <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
-                    <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0" />
-                    <path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9" />
-                    <path id="notifySlash" d="M4 2l16 20" />
-                </svg>
-            </button>
-            <button id="testNotifyButton" class="icon-btn disabled-btn" type="button" title="テスト通知" aria-label="テスト通知" disabled>
-                <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
-                    <path d="M4 4v16l16-8Z" />
-                </svg>
-            </button>
-        </div>
-    </section>
-
-    <section id="schedule"></section>
+    <footer class="footer">Chiba Institute of Technology · Attendance Navigator</footer>
 </main>
 
 <script>
@@ -887,275 +1021,285 @@ const notificationLeadMinutes = 30;
 const warningMinutesBeforeStart = 5;
 
 const timetable = {
-    1:[
-        { subject:"情報メディア基礎", room:"5103", start:"10:00", end:"12:00" },
-        { subject:"NWプログラミング基礎演習", room:"3212", start:"13:00", end:"17:00" }
+    1: [
+        { subject: "情報メディア基礎", room: "5103", start: "10:00", end: "12:00" },
+        { subject: "NWプログラミング基礎演習", room: "3212", start: "13:00", end: "17:00" }
     ],
-    2:[
-        { subject:"TCP/IP概論", room:"8102", start:"09:00", end:"11:00" },
-        { subject:"英語読解 3f", room:"5205", start:"11:00", end:"13:00" },
-        { subject:"微分方程式", room:"8206", start:"14:00", end:"16:00" }
+    2: [
+        { subject: "TCP/IP概論", room: "8102", start: "09:00", end: "11:00" },
+        { subject: "英語読解 3f", room: "5205", start: "11:00", end: "13:00" },
+        { subject: "微分方程式", room: "8206", start: "14:00", end: "16:00" }
     ],
-    3:[
-        { subject:"データ構造とアルゴリズム", room:"3212", start:"10:00", end:"12:00" },
-        { subject:"確率統計", room:"8109", start:"13:00", end:"15:00" },
-        { subject:"数理モデリング", room:"8201", start:"15:00", end:"17:00" }
+    3: [
+        { subject: "データ構造とアルゴリズム", room: "3212", start: "10:00", end: "12:00" },
+        { subject: "確率統計", room: "8109", start: "13:00", end: "15:00" },
+        { subject: "数理モデリング", room: "8201", start: "15:00", end: "17:00" }
     ],
-    4:[
-        { subject:"情報数学1", room:"7202", start:"11:00", end:"13:00" }
+    4: [
+        { subject: "情報数学1", room: "7202", start: "11:00", end: "13:00" }
     ],
-    5:[
-        { subject:"キャリアデザイン", room:"1121", start:"10:00", end:"12:00" },
-        { subject:"英語表現", room:"5304", start:"13:00", end:"15:00" },
-        { subject:"倫理学", room:"5102", start:"15:00", end:"17:00" }
+    5: [
+        { subject: "キャリアデザイン", room: "1102", start: "10:00", end: "12:00" },
+        { subject: "英語表現", room: "5304", start: "13:00", end: "15:00" },
+        { subject: "倫理学", room: "5102", start: "15:00", end: "17:00" }
     ]
 };
 
-const dayNames = ["日曜日","月曜日","火曜日","水曜日","木曜日","金曜日","土曜日"];
+const dayNames = ["日曜日", "月曜日", "火曜日", "水曜日", "木曜日", "金曜日", "土曜日"];
 const notifyButton = document.getElementById("notifyButton");
 const testNotifyButton = document.getElementById("testNotifyButton");
 const notifyStatus = document.getElementById("notifyStatus");
-const notifySlash = document.getElementById("notifySlash");
 const manualClassForm = document.getElementById("manualClassForm");
 const classNumberInput = document.getElementById("classNumberInput");
 const manualStatus = document.getElementById("manualStatus");
+const scheduleDate = document.getElementById("scheduleDate");
 
-function updateClock(){
+function updateClock() {
     const now = new Date();
 
-    document.getElementById("clock").innerText =
-        now.toLocaleTimeString("ja-JP",{
-            hour:"2-digit",
-            minute:"2-digit",
-            second:"2-digit"
-        });
+    document.getElementById("clock").textContent = now.toLocaleTimeString("ja-JP", {
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit"
+    });
 
-    document.getElementById("today").innerText =
-        now.toLocaleDateString("ja-JP") + " " + dayNames[now.getDay()];
+    document.getElementById("today").textContent =
+        now.toLocaleDateString("ja-JP", { month: "long", day: "numeric" }) +
+        " " +
+        dayNames[now.getDay()];
+
+    scheduleDate.textContent =
+        now.toLocaleDateString("ja-JP", { month: "2-digit", day: "2-digit" });
 }
 
-function timeToMinutes(timeStr){
-    const [h,m] = timeStr.split(":").map(Number);
-    return h * 60 + m;
+function timeToMinutes(timeString) {
+    const [hours, minutes] = timeString.split(":").map(Number);
+    return hours * 60 + minutes;
 }
 
-function minutesText(minutes){
-    if(minutes <= 0){
+function minutesText(minutes) {
+    if (minutes <= 0) {
         return "まもなく";
     }
 
-    const h = Math.floor(minutes / 60);
-    const m = minutes % 60;
+    const hours = Math.floor(minutes / 60);
+    const remainingMinutes = minutes % 60;
 
-    if(h === 0){
-        return m + "分";
+    if (hours === 0) {
+        return remainingMinutes + "分";
     }
 
-    if(m === 0){
-        return h + "時間";
+    if (remainingMinutes === 0) {
+        return hours + "時間";
     }
 
-    return h + "時間" + m + "分";
+    return hours + "時間" + remainingMinutes + "分";
 }
 
-function normalizeClassNumber(value){
-    return value.trim().replace(/\s+/g,"");
+function normalizeClassNumber(value) {
+    return value
+        .trim()
+        .replace(/[０-９]/g, character =>
+            String.fromCharCode(character.charCodeAt(0) - 0xFEE0)
+        )
+        .replace(/\s+/g, "");
 }
 
-function getAttendanceUrlByNumber(classNumber){
+function getAttendanceUrlByNumber(classNumber) {
     return baseUrl + encodeURIComponent(classNumber);
 }
 
-function openAttendanceByNumber(classNumber){
-    window.open(getAttendanceUrlByNumber(classNumber),"_blank");
-}
-
-function saveManualClassNumber(classNumber){
-    localStorage.setItem(manualClassNumberKey,classNumber);
-}
-
-function loadManualClassNumber(){
-    const saved = localStorage.getItem(manualClassNumberKey);
-
-    if(saved){
-        classNumberInput.value = saved;
-        manualStatus.textContent = "前回の番号 " + saved + " を入力済みです";
+function openExternal(url) {
+    const newWindow = window.open(url, "_blank", "noopener,noreferrer");
+    if (newWindow) {
+        newWindow.opener = null;
     }
 }
 
-function handleManualClassSubmit(event){
-    event.preventDefault();
+function openAttendanceByNumber(classNumber) {
+    openExternal(getAttendanceUrlByNumber(classNumber));
+}
 
+function saveManualClassNumber(classNumber) {
+    localStorage.setItem(manualClassNumberKey, classNumber);
+}
+
+function loadManualClassNumber() {
+    const saved = localStorage.getItem(manualClassNumberKey);
+
+    if (saved) {
+        classNumberInput.value = saved;
+        manualStatus.textContent = "前回の番号 " + saved + " を入力済みです。";
+    }
+}
+
+function handleManualClassSubmit(event) {
+    event.preventDefault();
     const classNumber = normalizeClassNumber(classNumberInput.value);
 
-    if(!classNumber){
-        manualStatus.textContent = "クラス番号を入力してください";
+    if (!classNumber) {
+        manualStatus.textContent = "クラス番号を入力してください。";
+        manualStatus.classList.add("is-error");
         classNumberInput.focus();
         return;
     }
 
+    if (!/^[0-9A-Za-z-]{3,10}$/.test(classNumber)) {
+        manualStatus.textContent = "クラス番号を3〜10文字の半角英数字で入力してください。";
+        manualStatus.classList.add("is-error");
+        classNumberInput.focus();
+        return;
+    }
+
+    manualStatus.classList.remove("is-error");
     classNumberInput.value = classNumber;
     saveManualClassNumber(classNumber);
-    manualStatus.textContent = "クラス番号 " + classNumber + " のページを開きます";
+    manualStatus.textContent = "クラス番号 " + classNumber + " のページを開きます。";
     openAttendanceByNumber(classNumber);
 }
 
-function getClassState(cls,currentMinutes){
-    const start = timeToMinutes(cls.start);
-    const end = timeToMinutes(cls.end);
+function getClassState(classItem, currentMinutes) {
+    const start = timeToMinutes(classItem.start);
+    const end = timeToMinutes(classItem.end);
     const openTime = start - notificationLeadMinutes;
 
-    if(currentMinutes >= start && currentMinutes <= end){
+    if (currentMinutes >= start && currentMinutes <= end) {
         return {
-            type:"current",
-            label:"今受ける授業",
-            status:"出席可能・終了まで " + minutesText(end - currentMinutes),
-            buttonText:"出席する",
-            disabled:false,
-            progress:((currentMinutes - start) / (end - start)) * 100
+            type: "current",
+            label: "授業中",
+            status: "終了まで " + minutesText(end - currentMinutes),
+            buttonText: "出席する",
+            disabled: false,
+            progress: ((currentMinutes - start) / (end - start)) * 100
         };
     }
 
-    if(currentMinutes >= openTime && currentMinutes < start){
+    if (currentMinutes >= openTime && currentMinutes < start) {
         return {
-            type:"ready",
-            label:"受付中",
-            status:"授業開始まで " + minutesText(start - currentMinutes),
-            buttonText:"今のうちに出席する",
-            disabled:false,
-            progress:((currentMinutes - openTime) / notificationLeadMinutes) * 100
+            type: "ready",
+            label: "受付中",
+            status: "授業開始まで " + minutesText(start - currentMinutes),
+            buttonText: "出席する",
+            disabled: false,
+            progress: ((currentMinutes - openTime) / notificationLeadMinutes) * 100
         };
     }
 
-    if(currentMinutes < openTime){
+    if (currentMinutes < openTime) {
         return {
-            type:"next",
-            label:"受付前",
-            status:"受付開始まで " + minutesText(openTime - currentMinutes),
-            buttonText:"まだ出席できません",
-            disabled:true,
-            progress:0
+            type: "next",
+            label: "受付前",
+            status: "受付開始まで " + minutesText(openTime - currentMinutes),
+            buttonText: "受付前",
+            disabled: true,
+            progress: 0
         };
     }
 
     return {
-        type:"ended",
-        label:"終了",
-        status:"授業は終了しました",
-        buttonText:"受付終了",
-        disabled:true,
-        progress:100
+        type: "ended",
+        label: "終了",
+        status: "この授業は終了しました",
+        buttonText: "受付終了",
+        disabled: true,
+        progress: 100
     };
 }
 
-function getTodayKey(date = new Date()){
-    return date.toLocaleDateString("ja-JP",{
-        year:"numeric",
-        month:"2-digit",
-        day:"2-digit"
+function getTodayKey(date = new Date()) {
+    return date.toLocaleDateString("ja-JP", {
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit"
     });
 }
 
-function getNotificationStore(){
-    try{
+function getNotificationStore() {
+    try {
         return JSON.parse(localStorage.getItem(notificationKey)) || {};
-    }catch{
+    } catch {
         return {};
     }
 }
 
-function setNotificationSent(key){
+function setNotificationSent(key) {
     const store = getNotificationStore();
     store[key] = true;
-    localStorage.setItem(notificationKey,JSON.stringify(store));
+    localStorage.setItem(notificationKey, JSON.stringify(store));
 }
 
-function wasNotificationSent(key){
+function wasNotificationSent(key) {
     return getNotificationStore()[key] === true;
 }
 
-function canUseNotifications(){
+function canUseNotifications() {
     return "Notification" in window;
 }
 
-function areNotificationsOn(){
+function areNotificationsOn() {
     return canUseNotifications() && Notification.permission === "granted";
 }
 
-function getAttendanceUrl(cls){
-    return getAttendanceUrlByNumber(cls.room);
-}
-
-function showNotification(title,body,cls,tag){
-    if(!areNotificationsOn()){
+function showNotification(title, body, classItem, tag) {
+    if (!areNotificationsOn()) {
         return;
     }
 
-    const notification = new Notification(title,{
+    const notification = new Notification(title, {
         body,
         tag,
-        renotify:true,
-        requireInteraction:true
+        renotify: true,
+        requireInteraction: true
     });
 
     notification.onclick = () => {
         window.focus();
-        window.open(getAttendanceUrl(cls),"_blank");
+        openAttendanceByNumber(classItem.room);
         notification.close();
     };
 }
 
-function updateNotificationUi(){
-    if(!canUseNotifications()){
-        notifyStatus.textContent = "このブラウザは通知に対応していません";
-        notifyButton.className = "icon-btn disabled-btn";
+function updateNotificationUi() {
+    notifyButton.classList.remove("is-on");
+
+    if (!canUseNotifications()) {
+        notifyStatus.textContent = "このブラウザは通知に対応していません。";
+        notifyButton.textContent = "利用できません";
         notifyButton.disabled = true;
         testNotifyButton.disabled = true;
-        testNotifyButton.className = "icon-btn disabled-btn";
         return;
     }
 
     notifyButton.disabled = false;
 
-    if(Notification.permission === "granted"){
-        notifyStatus.textContent = "オン・受付開始時と5分前に通知";
-        notifyButton.title = "通知オン";
-        notifyButton.setAttribute("aria-label","通知オン");
-        notifyButton.className = "icon-btn active-btn";
-        notifySlash.style.display = "none";
+    if (Notification.permission === "granted") {
+        notifyStatus.textContent = "受付開始と授業の5分前にお知らせします。";
+        notifyButton.textContent = "通知オン";
+        notifyButton.classList.add("is-on");
         testNotifyButton.disabled = false;
-        testNotifyButton.className = "icon-btn ready-btn";
         return;
     }
 
-    if(Notification.permission === "denied"){
-        notifyStatus.textContent = "ブラウザ設定で通知がブロックされています";
-        notifyButton.title = "通知ブロック中";
-        notifyButton.setAttribute("aria-label","通知ブロック中");
-        notifyButton.className = "icon-btn disabled-btn";
+    if (Notification.permission === "denied") {
+        notifyStatus.textContent = "ブラウザの設定で通知がブロックされています。";
+        notifyButton.textContent = "ブロック中";
         notifyButton.disabled = true;
-        notifySlash.style.display = "";
         testNotifyButton.disabled = true;
-        testNotifyButton.className = "icon-btn disabled-btn";
         return;
     }
 
-    notifyStatus.textContent = "オフ";
-    notifyButton.title = "通知をオン";
-    notifyButton.setAttribute("aria-label","通知をオン");
-    notifyButton.className = "icon-btn ready-btn";
-    notifySlash.style.display = "";
+    notifyStatus.textContent = "授業を忘れないよう、開始前にお知らせします。";
+    notifyButton.textContent = "通知をオン";
     testNotifyButton.disabled = true;
-    testNotifyButton.className = "icon-btn disabled-btn";
 }
 
-async function requestNotifications(){
-    if(!canUseNotifications()){
+async function requestNotifications() {
+    if (!canUseNotifications()) {
         updateNotificationUi();
         return;
     }
 
-    if(Notification.permission === "default"){
+    if (Notification.permission === "default") {
         await Notification.requestPermission();
     }
 
@@ -1163,143 +1307,138 @@ async function requestNotifications(){
     checkAttendanceNotifications(true);
 }
 
-function buildNotificationItems(cls,currentMinutes,todayKey){
-    const start = timeToMinutes(cls.start);
+function buildNotificationItems(classItem, currentMinutes, todayKey) {
+    const start = timeToMinutes(classItem.start);
     const openTime = start - notificationLeadMinutes;
     const warningTime = start - warningMinutesBeforeStart;
-    const classKey = `${todayKey}-${cls.room}-${cls.start}`;
+    const classKey = `${todayKey}-${classItem.room}-${classItem.start}`;
     const items = [];
 
-    if(currentMinutes >= openTime && currentMinutes < start){
+    if (currentMinutes >= openTime && currentMinutes < start) {
         items.push({
-            key:`${classKey}-open`,
-            title:"出席受付が始まりました",
-            body:`${cls.subject} / ${cls.room} / ${cls.start}開始`
+            key: `${classKey}-open`,
+            title: "出席受付が始まりました",
+            body: `${classItem.subject} / ${classItem.room} / ${classItem.start}開始`
         });
     }
 
-    if(currentMinutes >= warningTime && currentMinutes < start){
+    if (currentMinutes >= warningTime && currentMinutes < start) {
         items.push({
-            key:`${classKey}-before-start`,
-            title:"授業開始5分前です",
-            body:`${cls.subject} の出席を忘れずに`
+            key: `${classKey}-before-start`,
+            title: "授業開始5分前です",
+            body: `${classItem.subject}の出席を忘れずに`
         });
     }
 
     return items;
 }
 
-function checkAttendanceNotifications(force = false){
-    if(!areNotificationsOn()){
+function checkAttendanceNotifications(force = false) {
+    if (!areNotificationsOn()) {
         return;
     }
 
     const now = new Date();
-    const day = now.getDay();
     const currentMinutes = now.getHours() * 60 + now.getMinutes();
-    const todayClasses = timetable[day] || [];
+    const todayClasses = timetable[now.getDay()] || [];
     const todayKey = getTodayKey(now);
 
-    todayClasses.forEach(cls => {
-        buildNotificationItems(cls,currentMinutes,todayKey).forEach(item => {
-            if(!force && wasNotificationSent(item.key)){
+    todayClasses.forEach(classItem => {
+        buildNotificationItems(classItem, currentMinutes, todayKey).forEach(item => {
+            if (!force && wasNotificationSent(item.key)) {
                 return;
             }
 
-            showNotification(item.title,item.body,cls,item.key);
+            showNotification(item.title, item.body, classItem, item.key);
             setNotificationSent(item.key);
         });
     });
 }
 
-function renderSchedule(){
+function renderSchedule() {
     const now = new Date();
-    const day = now.getDay();
     const currentMinutes = now.getHours() * 60 + now.getMinutes();
     const container = document.getElementById("schedule");
-    const todayClasses = timetable[day];
+    const todayClasses = timetable[now.getDay()];
 
-    container.innerHTML = "";
+    container.replaceChildren();
 
-    if(!todayClasses){
-        container.innerHTML = "<div class='card empty'>今日は授業がありません</div>";
+    if (!todayClasses || todayClasses.length === 0) {
+        const empty = document.createElement("div");
+        empty.className = "empty-state";
+        empty.innerHTML = '<span class="empty-icon" aria-hidden="true">🏖️</span>今日は授業がありません。<br><small>ゆっくりリフレッシュしましょう。</small>';
+        container.appendChild(empty);
         return;
     }
 
-    todayClasses.forEach(cls => {
-        const state = getClassState(cls,currentMinutes);
-        const url = getAttendanceUrl(cls);
+    todayClasses.forEach(classItem => {
+        const state = getClassState(classItem, currentMinutes);
         const card = document.createElement("article");
+        const startParts = classItem.start.split(":");
+        const endParts = classItem.end.split(":");
 
-        card.className = "card " + state.type;
-
+        card.className = "class-card " + state.type;
         card.innerHTML = `
-            <div class="top-row">
-                <div>
-                    <div class="subject">${cls.subject}</div>
-                    <div class="status ${state.type}">${state.status}</div>
-                </div>
-                <div class="label ${state.type}">${state.label}</div>
+            <div class="class-time">
+                ${startParts[0]}:${startParts[1]}
+                <small>〜 ${endParts[0]}:${endParts[1]}</small>
             </div>
-
-            <div class="main-info">
-                <div class="info-box">
-                    <div class="info-title">時間</div>
-                    <div class="info-value">${cls.start} - ${cls.end}</div>
+            <div class="class-main">
+                <div class="class-meta">
+                    <span class="state-label">${state.label}</span>
+                    <span class="room-label">クラス ${classItem.room}</span>
                 </div>
-
-                <div class="info-box">
-                    <div class="info-title">クラス番号</div>
-                    <div class="info-value">${cls.room}</div>
+                <h3 class="class-subject">${classItem.subject}</h3>
+                <p class="class-status">${state.status}</p>
+                <div class="progress-track" aria-hidden="true">
+                    <div class="progress-bar" style="width:${Math.min(Math.max(state.progress, 0), 100)}%"></div>
                 </div>
             </div>
-
-            <div class="progress">
-                <div class="progress-bar" style="width:${Math.min(state.progress,100)}%"></div>
+            <div class="class-action">
+                <button class="class-button" type="button" ${state.disabled ? "disabled" : ""}>
+                    ${state.buttonText}
+                </button>
             </div>
-
-            <button
-                class="${state.type === "current" ? "active-btn" : state.type === "ready" ? "ready-btn" : "disabled-btn"}"
-                ${state.disabled ? "disabled" : ""}
-            >
-                ${state.buttonText}
-            </button>
         `;
 
-        const button = card.querySelector("button");
-
-        if(!state.disabled){
-            button.addEventListener("click",() => {
-                window.open(url,"_blank");
-            });
+        const button = card.querySelector(".class-button");
+        if (!state.disabled) {
+            button.addEventListener("click", () => openAttendanceByNumber(classItem.room));
         }
 
         container.appendChild(card);
     });
 }
 
-function update(){
+function update() {
     updateClock();
     updateNotificationUi();
     renderSchedule();
     checkAttendanceNotifications();
 }
 
-manualClassForm.addEventListener("submit",handleManualClassSubmit);
-notifyButton.addEventListener("click",requestNotifications);
-testNotifyButton.addEventListener("click",() => {
-    const cls = {
-        subject:"テスト通知",
-        room:normalizeClassNumber(classNumberInput.value) || "5103",
-        start:"--:--"
+manualClassForm.addEventListener("submit", handleManualClassSubmit);
+classNumberInput.addEventListener("input", () => {
+    manualStatus.classList.remove("is-error");
+});
+notifyButton.addEventListener("click", requestNotifications);
+testNotifyButton.addEventListener("click", () => {
+    const classItem = {
+        subject: "テスト通知",
+        room: normalizeClassNumber(classNumberInput.value) || "5103"
     };
 
-    showNotification("出席通知テスト","通知を押すと出席ページを開きます",cls,"cit-attendance-test");
+    showNotification(
+        "出席通知テスト",
+        "通知を押すと出席ページを開きます。",
+        classItem,
+        "cit-attendance-test"
+    );
 });
 
 loadManualClassNumber();
 update();
-setInterval(update,1000);
+setInterval(update, 1000);
 </script>
 </body>
 </html>
