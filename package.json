@@ -1,0 +1,11 @@
+{
+  "name": "cit-attendance",
+  "private": true,
+  "scripts": {
+    "test": "node --test tests/timetable.test.js",
+    "test:browser": "playwright test"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.63.0"
+  }
+}

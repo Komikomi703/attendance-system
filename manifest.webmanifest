@@ -2,9 +2,10 @@
   "name": "千葉工業大学 出席管理",
   "short_name": "出席アプリ",
   "start_url": "./index.html",
+  "scope": "./",
   "display": "standalone",
-  "background_color": "#041523",
-  "theme_color": "#0478ff",
+  "background_color": "#f7ead7",
+  "theme_color": "#843725",
   "icons": [
     {
       "src": "./icon-192.png",
