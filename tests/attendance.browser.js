@@ -361,8 +361,7 @@ test("授業終了後の受付をホームに残し、締切後に次の授業�
     await expect(page.locator('#schedule [data-room-code="1232"] button')).toBeDisabled();
 });
 
-test("小さなスマホでも出席ボタンが初期画面に収まり、全画面で横にはみ出さない", async ({ page, context }) => {
-    await context.grantPermissions(["notifications"]);
+test("小さなスマホでも出席ボタンが初期画面に収まり、全画面で横にはみ出さない", async ({ page }) => {
     await visit(page, "2026-09-25T15:00:00");
     await choose(page, "B");
     for (const [width, height] of [[320, 568], [375, 667], [390, 844], [430, 932]]) {
@@ -375,7 +374,8 @@ test("小さなスマホでも出席ボタンが初期画面に収まり、全�
         for (const view of ["home", "timetable", "settings"]) {
             await page.locator(`[data-view="${view}"]`).click();
             expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
-            const last = page.locator(`#view-${view} button:visible:not(:disabled)`).last();
+            // 通知非対応・権限拒否で無効なボタンもレイアウトの確認対象にする。
+            const last = page.locator(`#view-${view} button:visible`).last();
             await last.scrollIntoViewIfNeeded();
             const lastBox = await last.boundingBox();
             const navBox = await page.locator(".bottom-nav").boundingBox();
