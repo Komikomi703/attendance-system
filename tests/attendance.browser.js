@@ -361,7 +361,8 @@ test("授業終了後の受付をホームに残し、締切後に次の授業�
     await expect(page.locator('#schedule [data-room-code="1232"] button')).toBeDisabled();
 });
 
-test("小さなスマホでも出席ボタンが初期画面に収まり、全画面で横にはみ出さない", async ({ page }) => {
+test("小さなスマホでも出席ボタンが初期画面に収まり、全画面で横にはみ出さない", async ({ page, context }) => {
+    await context.grantPermissions(["notifications"]);
     await visit(page, "2026-09-25T15:00:00");
     await choose(page, "B");
     for (const [width, height] of [[320, 568], [375, 667], [390, 844], [430, 932]]) {
