@@ -30,15 +30,15 @@ test("全時限と2026年度後期の全授業が指定データと一致する"
     }
 });
 
-test("全授業で開始10分前と終了20分後の境界をミリ秒単位で判定する", () => {
+test("全授業で開始30分前と開始1時間後の境界をミリ秒単位で判定する", () => {
     for (const c of [...Object.values(schedule.timetable).flat(), ...Object.values(schedule.electives)]) {
         const date = schedule.addDays("2026-09-20", c.day);
         const start = Date.parse(`${date}T${c.start}:00+09:00`);
         const end = Date.parse(`${date}T${c.end}:00+09:00`);
         for (const [time, disabled, label] of [
-            [start - 600001, true, "開始前"], [start - 600000, false, "受付中"],
-            [start, false, "受付中"], [end, false, "受付中"],
-            [end + 1200000, false, "受付中"], [end + 1200001, true, "受付終了"]
+            [start - 1800001, true, "開始前"], [start - 1800000, false, "受付中"],
+            [start, false, "受付中"], [start + 3600000, false, "受付中"],
+            [start + 3600001, true, "受付終了"]
         ]) {
             const state = schedule.getClassState(c, date, new Date(time));
             assert.equal(state.disabled, disabled, `${c.subject} ${new Date(time).toISOString()}`);

@@ -51,16 +51,16 @@ test("ホームの授業は重複せず、曜日タブから全授業と詳細�
     await expect(page.locator("#periodList")).toContainText("10限：18:00〜19:00");
 });
 
-test("開始10分前・終了20分後を秒単位で自動更新し、新タブに番号だけのURLを渡す", async ({ page, context }) => {
-    await page.clock.install({ time: new Date("2026-09-22T13:49:59+09:00") });
-    await page.clock.pauseAt(new Date("2026-09-22T13:49:59+09:00"));
+test("開始30分前・開始1時間後を秒単位で自動更新し、新タブに番号だけのURLを渡す", async ({ page, context }) => {
+    await page.clock.install({ time: new Date("2026-09-22T13:29:59+09:00") });
+    await page.clock.pauseAt(new Date("2026-09-22T13:29:59+09:00"));
     await page.goto("./index.html");
     const button = page.locator('#view-home [data-room-code="1232"] .class-button');
     await expect(button).toBeDisabled();
     await expect(page.locator('#view-home [data-room-code="1232"] .state-label')).toHaveText("開始前");
     await page.clock.runFor(1000);
     await expect(button).toBeEnabled();
-    await expect(page.locator("#clock")).toHaveText("13:50:00");
+    await expect(page.locator("#clock")).toHaveText("13:30:00");
     await context.route("https://attendance.is.chibatech.ac.jp/**", route => route.fulfill({ body: "attendance test" }));
     const popupPromise = context.waitForEvent("page");
     await button.click();
@@ -69,10 +69,10 @@ test("開始10分前・終了20分後を秒単位で自動更新し、新タブ�
     expect(popup.url()).toBe("https://attendance.is.chibatech.ac.jp/attendance/class_room/1232");
     expect(await popup.evaluate(() => window.opener)).toBe(null);
     await popup.close();
-    await page.clock.setFixedTime(new Date("2026-09-22T18:20:00+09:00"));
+    await page.clock.setFixedTime(new Date("2026-09-22T15:00:00+09:00"));
     await page.evaluate(() => update());
     await expect(button).toBeEnabled();
-    await page.clock.setFixedTime(new Date("2026-09-22T18:20:01+09:00"));
+    await page.clock.setFixedTime(new Date("2026-09-22T15:00:01+09:00"));
     await page.evaluate(() => update());
     await expect(button).toBeDisabled();
     await expect(page.locator('#view-home [data-room-code="1232"] .state-label')).toHaveText("受付終了");
@@ -139,19 +139,20 @@ test("手入力も受付時間を守り、全角数字を正規化して保存�
     await page.locator("#classNumberInput").fill("1232 講義室");
     await expect(page.locator("#manualAttendanceButton")).toBeDisabled();
     await page.locator("#classNumberInput").fill("1232");
-    await page.clock.setFixedTime(new Date("2026-09-22T18:20:01+09:00"));
+    await page.clock.setFixedTime(new Date("2026-09-22T15:00:01+09:00"));
     await page.evaluate(() => update());
     await expect(page.locator("#manualAttendanceButton")).toBeDisabled();
 });
 
-test("隣接授業の受付が重なっても現在の授業は新しい授業になる", async ({ page }) => {
-    await visit(page, "2026-09-23T15:00:00");
-    await expect(page.locator("#focusClasses .class-subject").first()).toHaveText("社会数理モデリング");
-    await expect(page.locator('#view-home [data-room-code="7201"] button')).toBeEnabled();
-    await expect(page.locator('#view-home [data-room-code="8109"] button')).toBeEnabled();
-    await page.clock.setFixedTime(new Date("2026-09-23T15:20:01+09:00"));
+test("次の授業は開始30分前から受付でき、開始時には現在の授業として表示する", async ({ page }) => {
+    await visit(page, "2026-09-23T14:29:59");
+    await expect(page.locator('#view-home [data-room-code="8109"] button')).toBeDisabled();
+    await page.clock.setFixedTime(new Date("2026-09-23T14:30:00+09:00"));
     await page.evaluate(() => update());
-    await expect(page.locator('#view-home [data-room-code="7201"] button')).toBeDisabled();
+    await expect(page.locator('#view-home [data-room-code="8109"] button')).toBeEnabled();
+    await page.clock.setFixedTime(new Date("2026-09-23T15:00:00+09:00"));
+    await page.evaluate(() => update());
+    await expect(page.locator("#focusClasses .class-subject").first()).toHaveText("社会数理モデリング");
     await expect(page.locator('#view-home [data-room-code="8109"] button')).toBeEnabled();
 });
 
@@ -192,7 +193,7 @@ test("GitHub Pages相当のサブパスでPWAをキャッシュし、オフラ�
     await page.evaluate(() => navigator.serviceWorker.ready);
     await expect.poll(() => page.evaluate(() => !!navigator.serviceWorker.controller)).toBe(true);
     const cached = await page.evaluate(async () => {
-        const cache = await caches.open("cit-attendance-2026-fall-v4");
+        const cache = await caches.open("cit-attendance-2026-fall-v5");
         return (await cache.keys()).map(request => new URL(request.url).pathname);
     });
     for (const name of ["index.html", "styles.css", "app.js", "timetable.js", "manifest.webmanifest", "icon-192.png", "icon-512.png",
@@ -217,7 +218,7 @@ test("ストレージが使えない場合も画面は動作し、保存でき�
     await expect(page.locator("#focusClasses .class-subject").first()).toContainText("映画における恐怖の歴史");
 });
 
-test("既存の通知は10分前と5分前に選択授業だけを通知し、変更済み・期限切れの通知では出席を開かない", async ({ page }) => {
+test("受付開始30分前と5分前に選択授業だけを通知し、変更済み・期限切れの通知では出席を開かない", async ({ page }) => {
     await page.addInitScript(() => {
         window.notices = [];
         window.opened = [];
@@ -228,10 +229,10 @@ test("既存の通知は10分前と5分前に選択授業だけを通知し、�
         };
         window.open = (...args) => { window.opened.push(args); return null; };
     });
-    await visit(page, "2026-09-25T14:49:59");
+    await visit(page, "2026-09-25T14:29:59");
     await choose(page, "B");
     expect(await page.evaluate(() => window.notices.length)).toBe(0);
-    await page.clock.setFixedTime(new Date("2026-09-25T14:50:00+09:00"));
+    await page.clock.setFixedTime(new Date("2026-09-25T14:30:00+09:00"));
     await page.evaluate(() => { update(); update(); });
     expect(await page.evaluate(() => window.notices.map(n => n.title))).toEqual(["出席受付が始まりました"]);
     expect(await page.evaluate(() => window.notices[0].options.body)).toContain("映画における恐怖の歴史");
@@ -243,7 +244,7 @@ test("既存の通知は10分前と5分前に選択授業だけを通知し、�
     expect(await page.evaluate(() => window.opened)).toEqual([]);
     await page.evaluate(() => window.notices.at(-1).onclick());
     expect(await page.evaluate(() => window.opened.at(-1)[0])).toBe("https://attendance.is.chibatech.ac.jp/attendance/class_room/7201");
-    await page.clock.setFixedTime(new Date("2026-09-25T17:20:01+09:00"));
+    await page.clock.setFixedTime(new Date("2026-09-25T16:00:01+09:00"));
     await page.evaluate(() => window.notices.at(-1).onclick());
     expect(await page.evaluate(() => window.opened.length)).toBe(1);
 });
@@ -281,14 +282,14 @@ test("ホームで初回選択が完了し、短い授業名と保存結果を�
 });
 
 test("教室番号の無効理由と受付時刻を入力直後に案内する", async ({ page }) => {
-    await visit(page, "2026-09-22T13:49:59");
+    await visit(page, "2026-09-22T13:29:59");
     await openManual(page);
     const input = page.locator("#classNumberInput");
     const status = page.locator("#manualStatus");
     await input.fill("１２３２");
-    await expect(status).toHaveText("受付開始前です。13:50から出席できます。");
+    await expect(status).toHaveText("受付開始前です。13:30から出席できます。");
     await expect(page.locator("#manualAttendanceButton")).toBeDisabled();
-    await page.clock.setFixedTime(new Date("2026-09-22T13:50:00+09:00"));
+    await page.clock.setFixedTime(new Date("2026-09-22T13:30:00+09:00"));
     await page.evaluate(() => update());
     await expect(status).toContainText("出席ページを開けます");
     await expect(page.locator("#manualAttendanceButton")).toBeEnabled();
@@ -299,7 +300,7 @@ test("教室番号の無効理由と受付時刻を入力直後に案内する",
     await expect(status).toContainText("3〜10桁の数字");
     await input.fill("1232");
     await expect(input).toHaveAttribute("aria-invalid", "false");
-    await page.clock.setFixedTime(new Date("2026-09-22T18:20:01+09:00"));
+    await page.clock.setFixedTime(new Date("2026-09-22T15:00:01+09:00"));
     await page.evaluate(() => update());
     await expect(status).toContainText("今日の出席受付は終了");
     await input.fill("");
@@ -346,19 +347,18 @@ test("下部ナビ・履歴・曜日のキー操作と、更新時の詳細・�
     await expect(page.locator("#weekday-4")).toHaveAttribute("aria-selected", "true");
 });
 
-test("授業終了後の受付をホームに残し、締切後に次の授業へ切り替える", async ({ page }) => {
-    await visit(page, "2026-09-22T18:00:00");
-    await expect(page.locator("#focus-heading")).toHaveText("出席受付中の授業");
+test("授業開始1時間後までは受付でき、その直後に受付を終了する", async ({ page }) => {
+    await visit(page, "2026-09-22T15:00:00");
+    await expect(page.locator("#focus-heading")).toHaveText("現在の授業");
     await expect(page.locator("#focusClasses .class-subject")).toHaveText("NWプログラミング応用演習");
     await expect(page.locator("#focusClasses .class-button")).toBeEnabled();
-    await expect(page.locator("#focusClasses .class-status")).toContainText("授業終了後");
+    await expect(page.locator("#focusClasses .class-status")).toContainText("15:00 まで");
     await expect(page.locator("#schedule .class-card")).toHaveCount(0);
-    await page.clock.setFixedTime(new Date("2026-09-22T18:20:01+09:00"));
+    await page.clock.setFixedTime(new Date("2026-09-22T15:00:01+09:00"));
     await page.evaluate(() => update());
-    await expect(page.locator("#focus-heading")).toHaveText("次の授業");
-    await expect(page.locator("#focusClasses .class-subject")).toHaveText("OSとシステムソフトウェア");
-    await expect(page.locator("#focusClasses .class-status")).toContainText("09/23 水曜日");
-    await expect(page.locator('#schedule [data-room-code="1232"] button')).toBeDisabled();
+    await expect(page.locator("#focus-heading")).toHaveText("現在の授業");
+    await expect(page.locator("#focusClasses .class-button")).toBeDisabled();
+    await expect(page.locator("#focusClasses .state-label")).toHaveText("受付終了");
 });
 
 test("小さなスマホでも出席ボタンが初期画面に収まり、全画面で横にはみ出さない", async ({ page }) => {

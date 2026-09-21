@@ -1,5 +1,5 @@
 // 配信ファイルを更新したときは、このバージョンも更新する。
-const CACHE_NAME = "cit-attendance-2026-fall-v4";
+const CACHE_NAME = "cit-attendance-2026-fall-v5";
 const APP_FILES = ["./", "./index.html", "./styles.css", "./timetable.js", "./app.js", "./manifest.webmanifest",
     "./icon-192.png", "./icon-512.png", "./icon-512-maskable.png", "./apple-touch-icon.png", "./app-icon.png",
     "./assets/autumn-campus-768.webp", "./assets/autumn-campus-1536.webp"];

@@ -294,7 +294,7 @@ function updateNotificationUi() {
     notifyButton.disabled = false;
 
     if (Notification.permission === "granted") {
-        notifyStatus.textContent = "このページを開いている間、受付開始（10分前）と授業の5分前にお知らせします。";
+        notifyStatus.textContent = "このページを開いている間、受付開始（30分前）と授業の5分前にお知らせします。";
         notifyButton.textContent = "通知オン";
         notifyButton.classList.add("is-on");
         testNotifyButton.disabled = false;
@@ -437,7 +437,7 @@ function renderSchedule() {
     const today = getTodayKey(now);
     const classes = todayClasses(now);
     const focus = AttendanceSchedule.getCurrentAndNext(now, selectedElective);
-    // 授業終了後も20分間は受付中のカードをホームに残す。
+    // 受付時間内の授業は、授業開始前・授業中を問わずホームに残す。
     const accepting = classes.find(item => !AttendanceSchedule.getClassState(item, today, now).disabled);
     const featured = focus.current || (accepting ? { classData: accepting, date: today } : focus.next);
     const monday = AttendanceSchedule.addDays(today, -((AttendanceSchedule.dayOfWeek(today) + 6) % 7));

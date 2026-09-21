@@ -1,8 +1,8 @@
 // 2026年度後期。日付・曜日と受付時刻は、端末のタイムゾーンにかかわらず日本時間で扱う。
 const AttendanceSchedule = (() => {
     const ATTENDANCE_BASE_URL = "https://attendance.is.chibatech.ac.jp/attendance/class_room/";
-    const OPEN_MINUTES = 10;
-    const CLOSE_MINUTES = 20;
+    const OPEN_MINUTES = 30;
+    const CLOSE_MINUTES = 60;
     const ELECTIVE_KEY = "cit-attendance-2026-fall-friday-elective";
     const DAY_NAMES = ["日曜日", "月曜日", "火曜日", "水曜日", "木曜日", "金曜日", "土曜日"];
     const PERIODS = Array.from({ length: 10 }, (_, index) => ({
@@ -68,7 +68,7 @@ const AttendanceSchedule = (() => {
     function classTimes(classData, date) {
         const start = Date.parse(`${date}T${classData.start}:00+09:00`);
         const end = Date.parse(`${date}T${classData.end}:00+09:00`);
-        return { start, end, open: start - OPEN_MINUTES * 60000, close: end + CLOSE_MINUTES * 60000 };
+        return { start, end, open: start - OPEN_MINUTES * 60000, close: start + CLOSE_MINUTES * 60000 };
     }
 
     function getClassState(classData, date, now = new Date()) {
@@ -79,14 +79,14 @@ const AttendanceSchedule = (() => {
         const time = now.getTime();
         const progress = Math.min(100, Math.max(0, (time - start) / (end - start) * 100));
         if (time < open) {
-            return { type: "next", label: "開始前", status: "出席受付は授業開始10分前からです。", buttonText: "受付前", disabled: true, progress };
+            return { type: "next", label: "開始前", status: "出席受付は授業開始30分前からです。", buttonText: "受付前", disabled: true, progress };
         }
         if (time > close) {
             return { type: "ended", label: "受付終了", status: "この授業の出席受付は終了しました。", buttonText: "受付終了", disabled: true, progress };
         }
         const during = time >= start && time < end;
         const status = time < start ? "授業開始前・出席受付中" : during ? "授業中・出席受付中" : "授業終了後・出席受付中";
-        return { type: during ? "current" : "ready", label: "受付中", status: `${status}（終了20分後まで）`, buttonText: "出席する", disabled: false, progress };
+        return { type: during ? "current" : "ready", label: "受付中", status: `${status}（開始1時間後まで）`, buttonText: "出席する", disabled: false, progress };
     }
 
     function getCurrentAndNext(now, elective) {
