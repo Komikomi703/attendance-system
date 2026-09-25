@@ -161,13 +161,6 @@ function handleManualClassSubmit(event) {
         return;
     }
 
-    const classItem = findManualClass(classNumber);
-    if (!classItem) {
-        manualStatus.textContent = "今日の選択済み授業の受付時間内に利用できます。";
-        manualStatus.classList.add("is-error");
-        updateManualButton();
-        return;
-    }
     manualStatus.classList.remove("is-error");
     classNumberInput.value = classNumber;
     saveManualClassNumber(classNumber);
@@ -179,34 +172,17 @@ function getTodayKey(date = new Date()) {
     return AttendanceSchedule.dateKey(date);
 }
 
-function findManualClass(roomCode, now = new Date()) {
-    return todayClasses(now).find(classItem => classItem.roomCode === roomCode &&
-        !AttendanceSchedule.getClassState(classItem, getTodayKey(now), now).disabled);
-}
-
 function updateManualButton() {
     const number = normalizeClassNumber(classNumberInput.value);
-    const now = new Date();
-    const classes = todayClasses(now);
-    const matching = classes.filter(item => !item.pending && item.roomCode === number);
-    const available = matching.find(item => !AttendanceSchedule.getClassState(item, getTodayKey(now), now).disabled);
     const invalid = !!number && !/^[0-9]{3,10}$/.test(number);
-    let message;
-    if (!number) message = "今日の授業の教室番号を入力してください。";
-    else if (invalid) message = "教室番号は3〜10桁の数字で入力してください。全角数字も使えます。";
-    else if (!classes.length) message = "今日は通常授業がないため、番号からの出席は利用できません。";
-    else if (available) message = `${available.shortName || available.subject}の出席ページを開けます。`;
-    else if (!matching.length) message = classes.some(item => item.pending) && Object.values(AttendanceSchedule.electives).some(item => item.roomCode === number)
-        ? "金曜の選択授業が未設定です。ホームまたは設定で授業を選んでください。"
-        : "今日の選択済み授業にない教室番号です。時間割をご確認ください。";
-    else {
-        const upcoming = matching.find(item => AttendanceSchedule.classTimes(item, getTodayKey(now)).open > now.getTime());
-        message = upcoming ? `受付開始前です。${formatTime(AttendanceSchedule.classTimes(upcoming, getTodayKey(now)).open)}から出席できます。`
-            : "この教室の今日の出席受付は終了しました。";
-    }
-    document.getElementById("manualAttendanceButton").disabled = !available || invalid;
+    const message = !number
+        ? "教室番号を入力してください。時間割にない教科も利用できます。"
+        : invalid
+            ? "教室番号は3〜10桁の数字で入力してください。全角数字も使えます。"
+            : `教室番号 ${number} の出席ページを開けます。受付状況は開いたページで確認してください。`;
+    document.getElementById("manualAttendanceButton").disabled = !number || invalid;
     classNumberInput.setAttribute("aria-invalid", String(invalid));
-    manualStatus.classList.toggle("is-error", invalid || (!!number && !matching.length && classes.length > 0));
+    manualStatus.classList.toggle("is-error", invalid);
     if (manualStatus.textContent !== message) manualStatus.textContent = message;
 }
 
@@ -546,6 +522,9 @@ function update() {
 }
 
 manualClassForm.addEventListener("submit", handleManualClassSubmit);
+document.querySelector(".cafeteria-nav-link").addEventListener("click", event => {
+    if (!window.confirm("学食情報のLINEを開きますか？")) event.preventDefault();
+});
 classNumberInput.addEventListener("input", () => {
     manualStatus.classList.remove("is-error");
     updateManualButton();

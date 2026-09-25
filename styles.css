@@ -236,3 +236,16 @@ summary small { display: block; font-size: 11px; line-height: 1.6; color: var(--
 @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after { scroll-behavior: auto !important; transition: none !important; animation: none !important; }
 }
+/* 高さの小さいスマホでも、出席操作が下部ナビの上に収まる余白にする。 */
+@media (max-width: 620px) and (max-height: 700px) {
+    .hero-copy { padding: 12px 16px; }
+    .hero { margin-bottom: 12px; }
+    .eyebrow, h1 { margin-bottom: 8px; }
+    .view-heading { margin-bottom: 10px; }
+    .cafeteria-panel { padding: 10px 12px; margin-bottom: 10px; }
+    .focus-panel { padding: 12px; }
+    .focus-panel .panel-heading { margin-bottom: 8px; }
+    .featured .class-subject { font-size: 18px; }
+    .featured .class-status { margin-top: 6px; }
+    .featured .class-action { margin-top: 8px; }
+}

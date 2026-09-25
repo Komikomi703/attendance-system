@@ -2,7 +2,7 @@
   "name": "cit-attendance",
   "private": true,
   "scripts": {
-    "test": "node --test tests/timetable.test.js",
+    "test": "node --test tests/*.test.js",
     "test:browser": "playwright test"
   },
   "devDependencies": {

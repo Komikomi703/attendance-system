@@ -1,7 +1,9 @@
 // 配信ファイルを更新したときは、このバージョンも更新する。
-const CACHE_NAME = "cit-attendance-2026-fall-v6";
+const CACHE_NAME = "cit-attendance-2026-fall-v12";
 const APP_FILES = ["./", "./index.html", "./styles.css", "./timetable.js", "./app.js", "./manifest.webmanifest",
     "./icon-192.png", "./icon-512.png", "./icon-512-maskable.png", "./apple-touch-icon.png", "./app-icon.png",
+    "./game/chibany-transparent.png", "./game/entrance.css", "./game/entrance.js",
+    "./game/index.html", "./game/game.css", "./game/engine.js", "./game/game.js",
     "./assets/autumn-campus-768.webp", "./assets/autumn-campus-1536.webp"];
 const APP_URLS = new Set(APP_FILES.map(path => new URL(path, self.location).href));
 
@@ -19,6 +21,8 @@ self.addEventListener("fetch", event => {
     const url = new URL(event.request.url);
     // 画面切り替えの #home / #timetable / #settings は同じHTMLを使う。
     url.hash = "";
+    // ゲーム入口の復帰先クエリも同じHTMLを利用する。
+    if (url.pathname === new URL("./game/index.html", self.location).pathname) url.search = "";
     const cacheKey = url.href;
     if (event.request.method !== "GET" || !APP_URLS.has(cacheKey)) return;
     // オンラインでは最新ファイルを優先し、オフライン時だけキャッシュを使う。

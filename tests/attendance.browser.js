@@ -125,7 +125,7 @@ test("金曜の未設定からA/Bを選択し全画面とURLに即時反映、�
     await expect(page.locator("#schedule .class-subject").last()).toContainText("科学哲学");
 });
 
-test("手入力も受付時間を守り、全角数字を正規化して保存する", async ({ page }) => {
+test("手入力は全角数字を正規化して保存し、授業の受付時間外でもページを開ける", async ({ page }) => {
     await visit(page, "2026-09-22T14:00:00");
     await page.evaluate(() => { window.opened = []; window.open = (...args) => { window.opened.push(args); return null; }; });
     await openManual(page);
@@ -141,7 +141,7 @@ test("手入力も受付時間を守り、全角数字を正規化して保存�
     await page.locator("#classNumberInput").fill("1232");
     await page.clock.setFixedTime(new Date("2026-09-22T15:00:01+09:00"));
     await page.evaluate(() => update());
-    await expect(page.locator("#manualAttendanceButton")).toBeDisabled();
+    await expect(page.locator("#manualAttendanceButton")).toBeEnabled();
 });
 
 test("次の授業は開始30分前から受付でき、開始時には現在の授業として表示する", async ({ page }) => {
@@ -193,7 +193,9 @@ test("GitHub Pages相当のサブパスでPWAをキャッシュし、オフラ�
     await page.evaluate(() => navigator.serviceWorker.ready);
     await expect.poll(() => page.evaluate(() => !!navigator.serviceWorker.controller)).toBe(true);
     const cached = await page.evaluate(async () => {
-        const cache = await caches.open("cit-attendance-2026-fall-v5");
+        const names = (await caches.keys()).filter(name => name.startsWith("cit-attendance-"));
+        if (names.length !== 1) throw new Error("有効なアプリキャッシュは1つである必要があります");
+        const cache = await caches.open(names[0]);
         return (await cache.keys()).map(request => new URL(request.url).pathname);
     });
     for (const name of ["index.html", "styles.css", "app.js", "timetable.js", "manifest.webmanifest", "icon-192.png", "icon-512.png",
@@ -281,37 +283,55 @@ test("ホームで初回選択が完了し、短い授業名と保存結果を�
     await expect(page.locator("#focusClasses .class-subject")).toHaveText("映画における恐怖の歴史");
 });
 
-test("教室番号の無効理由と受付時刻を入力直後に案内する", async ({ page }) => {
+test("教室番号は時間割・曜日・選択に関係なく開け、不正な入力は送信できない", async ({ page }) => {
     await visit(page, "2026-09-22T13:29:59");
+    await page.evaluate(() => { window.opened = []; window.open = (...args) => { window.opened.push(args); return null; }; });
     await openManual(page);
     const input = page.locator("#classNumberInput");
     const status = page.locator("#manualStatus");
-    await input.fill("１２３２");
-    await expect(status).toHaveText("受付開始前です。13:30から出席できます。");
-    await expect(page.locator("#manualAttendanceButton")).toBeDisabled();
-    await page.clock.setFixedTime(new Date("2026-09-22T13:30:00+09:00"));
-    await page.evaluate(() => update());
-    await expect(status).toContainText("出席ページを開けます");
-    await expect(page.locator("#manualAttendanceButton")).toBeEnabled();
-    await input.fill("9999");
-    await expect(status).toContainText("今日の選択済み授業にない教室番号");
-    await input.fill("1232 講義室");
-    await expect(input).toHaveAttribute("aria-invalid", "true");
-    await expect(status).toContainText("3〜10桁の数字");
-    await input.fill("1232");
-    await expect(input).toHaveAttribute("aria-invalid", "false");
-    await page.clock.setFixedTime(new Date("2026-09-22T15:00:01+09:00"));
-    await page.evaluate(() => update());
-    await expect(status).toContainText("今日の出席受付は終了");
-    await input.fill("");
-    await expect(status).toHaveText("今日の授業の教室番号を入力してください。");
-    await page.clock.setFixedTime(new Date("2026-09-25T15:00:00+09:00"));
-    await page.evaluate(() => update());
+    const button = page.locator("#manualAttendanceButton");
+    for (const [time, room] of [
+        ["2026-09-22T13:29:59", "１２３２"],
+        ["2026-09-22T14:00:00", "9999"],
+        ["2026-09-22T15:00:01", "1232"],
+        ["2026-09-25T15:00:00", "5305"],
+        ["2026-09-28T10:00:00", "8103"]
+    ]) {
+        await page.clock.setFixedTime(new Date(time + "+09:00"));
+        await page.evaluate(() => update());
+        await input.fill(room);
+        await expect(button).toBeEnabled();
+        await expect(status).toContainText("受付状況は開いたページで確認");
+        await button.click();
+        expect(await page.evaluate(() => window.opened.at(-1))).toEqual([
+            `https://attendance.is.chibatech.ac.jp/attendance/class_room/${room.normalize("NFKC")}`,
+            "_blank", "noopener,noreferrer"
+        ]);
+    }
+    await choose(page, "A");
     await input.fill("5305");
-    await expect(status).toContainText("金曜の選択授業が未設定");
-    await page.clock.setFixedTime(new Date("2026-09-28T10:00:00+09:00"));
-    await page.evaluate(() => update());
-    await expect(status).toContainText("今日は通常授業がない");
+    await button.click();
+    expect(await page.evaluate(() => window.opened.at(-1)[0])).toContain("/5305");
+    const openedCount = await page.evaluate(() => window.opened.length);
+    for (const value of ["1232 講義室", "12", "123/45", ""]) {
+        await input.fill(value);
+        await expect(button).toBeDisabled();
+        await expect(input).toHaveAttribute("aria-invalid", String(!!value));
+        await page.evaluate(() => document.getElementById("manualClassForm").requestSubmit());
+        expect(await page.evaluate(() => window.opened.length)).toBe(openedCount);
+    }
+    await input.fill("12345678901");
+    // maxlengthを迂回した入力でも送信時に検証する。
+    await page.evaluate(() => {
+        document.getElementById("classNumberInput").value = "12345678901";
+        document.getElementById("manualClassForm").requestSubmit();
+    });
+    expect(await page.evaluate(() => window.opened.length)).toBe(openedCount);
+    await input.fill("123");
+    await expect(button).toBeEnabled();
+    await expect(input).toHaveAttribute("aria-invalid", "false");
+    await input.fill("");
+    await expect(status).toContainText("時間割にない教科も利用できます");
 });
 
 test("下部ナビ・履歴・曜日のキー操作と、更新時の詳細・フォーカスを保つ", async ({ page }) => {
