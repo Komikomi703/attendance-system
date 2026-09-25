@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <meta name="theme-color" content="#843725">
     <meta name="color-scheme" content="light">
-    <meta name="description" content="2026年度後期の時間割と出席受付を確認できる、秋のキャンパス出席管理アプリ">
+    <meta name="description" content="学食情報へのリンク、2026年度後期の時間割と出席受付を確認できるキャンパスアプリ">
     <title>出席管理｜Autumn Campus</title>
     <link rel="manifest" href="./manifest.webmanifest">
     <link rel="icon" href="./icon-192.png" type="image/png">
@@ -35,6 +35,16 @@
 
         <section id="view-home" class="app-view" aria-labelledby="home-heading" tabindex="-1">
             <div class="view-heading"><div><p class="section-kicker">MY CAMPUS</p><h2 id="home-heading" tabindex="-1">今日の出席</h2></div><span id="todayCount" class="count-label"></span></div>
+            <section class="panel cafeteria-panel" aria-labelledby="cafeteria-heading">
+                <div class="cafeteria-copy">
+                    <p class="cafeteria-kicker">CAFETERIA</p>
+                    <h3 id="cafeteria-heading">学食の情報</h3>
+                    <p>最新情報をLINEですぐに確認</p>
+                </div>
+                <a class="cafeteria-button" href="https://lin.ee/Y6QmJFu" aria-label="学食情報のLINEを開く">
+                    LINEを開く <span aria-hidden="true">↗</span>
+                </a>
+            </section>
             <section class="panel focus-panel" aria-labelledby="focus-heading">
                 <div class="panel-heading"><h3 id="focus-heading" class="focus-label">現在の授業</h3><span class="live-dot" aria-hidden="true"></span></div>
                 <div id="focusClasses"></div>
@@ -135,6 +145,11 @@
     <nav class="bottom-nav" aria-label="メインナビゲーション">
         <a href="#home" data-view="home" aria-current="page"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m3 10 9-7 9 7v10H3Z"/><path d="M9 20v-7h6v7"/></svg><span>今日</span></a>
         <a href="#timetable" data-view="timetable"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M7 3v4m10-4v4M3 11h18m-12 4h2m4 0h2m-8 3h2"/></svg><span>時間割</span></a>
+        <a class="cafeteria-nav-link" href="https://lin.ee/Y6QmJFu" aria-label="学食情報をLINEで開く">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M7 3v7m4-7v7M5 10h8M9 10v11M18 3v18m0-18c-2 2-3 4-3 7h3" />
+            </svg><span>学食</span>
+        </a>
         <a href="#settings" data-view="settings"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 17h16"/><circle cx="9" cy="7" r="3"/><circle cx="15" cy="17" r="3"/></svg><span>設定</span><span id="settingsBadge" class="nav-badge" aria-label="選択授業が未設定"></span></a>
     </nav>
     <script src="./timetable.js"></script>
